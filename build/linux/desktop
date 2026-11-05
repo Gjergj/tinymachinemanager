@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=My Product
+Comment=Virtual Machine Manager
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/tinymachinemanager %u
+Terminal=false
+Type=Application
+Icon=tinymachinemanager
+Categories=Utility;
+StartupWMClass=tinymachinemanager
+
+ 
