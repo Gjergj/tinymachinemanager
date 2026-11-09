@@ -1,5 +1,8 @@
 # Welcome to Your New Wails3 Project!
 
+The standalone [`kvmcheck`](pkg/kvmcheck/README.md) Go package reports Linux/KVM
+host requirements.
+
 Congratulations on generating your Wails3 application! This README will guide you through the next steps to get your project up and running.
 
 ## Getting Started

@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"embed"
 
 	"log"
 	"time"
 
+	"github.com/Gjergj/tinymachinemanager/pkg/kvmcheck"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
@@ -28,6 +30,25 @@ func init() {
 // and starts a goroutine that emits a time-based event every second. It subsequently runs the application and
 // logs any error that might occur.
 func main() {
+	checkCtx, cancelCheck := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancelCheck()
+	go func() {
+		defer cancelCheck()
+		report := kvmcheck.Check(checkCtx)
+		log.Printf("KVM startup check: ready=%t", report.Ready)
+		for _, result := range report.Checks {
+			if result.Status == kvmcheck.Pass {
+				continue
+			}
+			log.Printf("KVM startup check [%s] %s: %s", result.Status, result.ID, result.Message)
+			if result.Output != "" {
+				log.Printf("KVM startup check %s output: %s", result.ID, result.Output)
+			}
+			if result.Remediation != "" {
+				log.Printf("KVM startup check %s suggested fix: %s", result.ID, result.Remediation)
+			}
+		}
+	}()
 
 	// Create a new Wails application by providing the necessary options.
 	// Variables 'Name' and 'Description' are for application metadata.
