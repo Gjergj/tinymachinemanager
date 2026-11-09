@@ -103,10 +103,10 @@ func TestListIncludesAllDomainsAndCopiesMetadata(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := []Domain{
-		{UUID: "00000000-0000-4000-8000-000000000001", Name: "alpha", State: StateRunning, Active: true, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288},
-		{UUID: "00000000-0000-4000-8000-000000000002", Name: "middle", State: StatePaused, Active: true, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288},
-		{UUID: "00000000-0000-4000-8000-000000000004", Name: "volatile", State: StateRunning, Active: true, Persistent: false, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288},
-		{UUID: "00000000-0000-4000-8000-000000000003", Name: "zeta", State: StateShutoff, Active: false, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288},
+		{UUID: "00000000-0000-4000-8000-000000000001", Name: "alpha", State: StateRunning, Active: true, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288, Interfaces: []Interface{}},
+		{UUID: "00000000-0000-4000-8000-000000000002", Name: "middle", State: StatePaused, Active: true, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288, Interfaces: []Interface{}},
+		{UUID: "00000000-0000-4000-8000-000000000004", Name: "volatile", State: StateRunning, Active: true, Persistent: false, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288, Interfaces: []Interface{}},
+		{UUID: "00000000-0000-4000-8000-000000000003", Name: "zeta", State: StateShutoff, Active: false, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288, Interfaces: []Interface{}},
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("domains:\n got %+v\nwant %+v", got, want)
@@ -165,7 +165,7 @@ func TestDescribeReportsDisappearedDomain(t *testing.T) {
 	}
 	guest, err := describe(dom)
 	var nativeError libvirt.Error
-	if err == nil || guest != (Domain{}) || !errors.As(err, &nativeError) || nativeError.Code != libvirt.ERR_NO_DOMAIN || !strings.Contains(err.Error(), "removed") {
+	if err == nil || !reflect.DeepEqual(guest, Domain{}) || !errors.As(err, &nativeError) || nativeError.Code != libvirt.ERR_NO_DOMAIN || !strings.Contains(err.Error(), "removed") {
 		t.Fatalf("metadata failure lost: guest=%+v, err=%v", guest, err)
 	}
 }

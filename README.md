@@ -3,8 +3,14 @@
 The standalone [`kvmcheck`](pkg/kvmcheck/README.md) Go package reports Linux/KVM
 host requirements.
 
-The [`domains`](pkg/domains/README.md) Go package lists active and inactive guests.
+The [`domains`](pkg/domains/README.md) Go package lists active and inactive guests,
+including their network interfaces and attachment sources.
 Building it requires libvirt development headers, pkg-config and a C compiler.
+
+[`networks`](pkg/networks/README.md) lists libvirt virtual networks and their
+bridge, forwarding, IP/DHCP, VLAN and portgroup configuration.
+[`hostnet`](pkg/hostnet/README.md) lists local Linux interfaces and bridges,
+including those created outside libvirt.
 
 Congratulations on generating your Wails3 application! This README will guide you through the next steps to get your project up and running.
 

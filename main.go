@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/Gjergj/tinymachinemanager/pkg/domains"
+	"github.com/Gjergj/tinymachinemanager/pkg/hostnet"
 	"github.com/Gjergj/tinymachinemanager/pkg/kvmcheck"
+	"github.com/Gjergj/tinymachinemanager/pkg/networks"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
@@ -55,7 +57,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	log.Print(lll)
+	log.Printf("%T", lll)
+
+	net, err := networks.List("")
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("%T", net)
+
+	hnet, err := hostnet.List()
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("%T", hnet)
 
 	// Create a new Wails application by providing the necessary options.
 	// Variables 'Name' and 'Description' are for application metadata.
