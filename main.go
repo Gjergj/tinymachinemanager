@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/Gjergj/tinymachinemanager/pkg/domains"
 	"github.com/Gjergj/tinymachinemanager/pkg/kvmcheck"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -49,6 +50,12 @@ func main() {
 			}
 		}
 	}()
+
+	lll, err := domains.List(domains.DefaultURI)
+	if err != nil {
+		panic(err)
+	}
+	log.Print(lll)
 
 	// Create a new Wails application by providing the necessary options.
 	// Variables 'Name' and 'Description' are for application metadata.
@@ -99,7 +106,7 @@ func main() {
 	}()
 
 	// Run the application. This blocks until the application has been exited.
-	err := app.Run()
+	err = app.Run()
 
 	// If an error occurred while running the application, log it and exit.
 	if err != nil {

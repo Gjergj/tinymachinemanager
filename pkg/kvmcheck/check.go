@@ -247,7 +247,6 @@ func runCommand(ctx context.Context, name string, args ...string) (string, error
 	ctx, cancel := context.WithTimeout(ctx, commandTimeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, name, args...)
-	// Stable English output and no terminal control sequences from validators.
 	cmd.Env = append(os.Environ(), "LC_ALL=C", "LANG=C", "TERM=dumb")
 	// Bound waiting for inherited output pipes if a command spawns children.
 	cmd.WaitDelay = 100 * time.Millisecond
