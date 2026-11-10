@@ -12,8 +12,8 @@ export function link(name: string, extra: Partial<Interface> = {}): Interface {
     operState: 'up', isBridge: false, members: [], addresses: [], ...extra }
 }
 export function guest(uuid: string, interfaces: GuestInterface[], extra: Partial<Domain> = {}): Domain {
-  return { uuid, name: uuid, active: true, state: 'running' as Domain['state'], persistent: true,
-    vcpus: 2, memoryKiB: 4194304, maxMemoryKiB: 4194304, interfaces, ...extra }
+  return { uuid, name: uuid, type: '', os: { type: {} }, devices: { interfaces }, active: true, state: 'running' as Domain['state'], persistent: true,
+    vcpus: 2, memoryKiB: 4194304, maxMemoryKiB: 4194304, ...extra }
 }
 export function snapshot(extra: Partial<NetworkingInventory> = {}): NetworkingInventory {
   return { networks: [network()], interfaces: [link('virbr0', { isBridge: true })], machines: [], issues: [], ...extra }

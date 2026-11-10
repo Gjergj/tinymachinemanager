@@ -4,8 +4,15 @@
 export {
     Attachment,
     DeviceAddress,
+    Devices,
     Domain,
+    Firmware,
+    FirmwareFeature,
     Interface,
     InterfaceSource,
+    Loader,
+    NVRAM,
+    OS,
+    OSType,
     State
 } from "./models.js";

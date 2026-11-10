@@ -9,7 +9,7 @@ import (
 )
 
 func TestParseMultipleInterfaceSources(t *testing.T) {
-	interfaces, err := parseInterfaces(`<domain><devices>
+	guest, err := parseDomainXML(`<domain><devices>
   <interface type="network">
     <mac address="52:54:00:00:00:01"/><model type="virtio"/>
     <source network="office" portgroup="staff"/><target dev="vnet3"/>
@@ -31,6 +31,7 @@ func TestParseMultipleInterfaceSources(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	interfaces := guest.Devices.Interfaces
 	if len(interfaces) != 8 {
 		t.Fatalf("interfaces dropped: %+v", interfaces)
 	}
@@ -69,17 +70,17 @@ func TestParseMultipleInterfaceSources(t *testing.T) {
 
 func TestNoInterfacesAndInvalidDomainXML(t *testing.T) {
 	for _, input := range []string{`<domain/>`, `<domain><devices><disk/></devices></domain>`} {
-		interfaces, err := parseInterfaces(input)
+		guest, err := parseDomainXML(input)
 		if err != nil {
 			t.Fatal(err)
 		}
-		data, err := json.Marshal(interfaces)
+		data, err := json.Marshal(guest.Devices.Interfaces)
 		if err != nil || string(data) != "[]" {
 			t.Fatalf("interfaces=%s err=%v", data, err)
 		}
 	}
 	for _, input := range []string{`<domain>`, `<network/>`, `<domain><devices><interface><vlan><tag id="bad"/></vlan></interface></devices></domain>`} {
-		if _, err := parseInterfaces(input); err == nil {
+		if _, err := parseDomainXML(input); err == nil {
 			t.Errorf("accepted invalid XML: %s", input)
 		}
 	}
@@ -110,11 +111,11 @@ func TestNativeDomainNetworkAttachments(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if len(result) != 1 || len(result[0].Interfaces) != 2 {
+		if len(result) != 1 || len(result[0].Devices.Interfaces) != 2 {
 			t.Fatalf("domain interfaces not populated: %+v", result)
 		}
-		if result[0].Interfaces[0].Source.Network != "default" || result[0].Interfaces[0].MAC != "52:54:00:00:00:11" || result[0].Interfaces[1].Source.Bridge != "br-external" {
-			t.Fatalf("attachment info lost: %+v", result[0].Interfaces)
+		if result[0].Devices.Interfaces[0].Source.Network != "default" || result[0].Devices.Interfaces[0].MAC != "52:54:00:00:00:11" || result[0].Devices.Interfaces[1].Source.Bridge != "br-external" {
+			t.Fatalf("attachment info lost: %+v", result[0].Devices.Interfaces)
 		}
 	}
 }

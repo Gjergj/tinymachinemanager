@@ -50,6 +50,7 @@ func main() {
 		Description: "Manage local Linux virtual machines with libvirt",
 		Services: []application.Service{
 			application.NewService(&MachinesService{}),
+			application.NewService(&NetworkingService{}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

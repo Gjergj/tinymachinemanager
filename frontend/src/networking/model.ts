@@ -34,7 +34,7 @@ function hostAssociation(link: Interface, machine: Domain, nic: GuestInterface, 
 }
 
 export function attachmentsFor(item: ExplorerItem, data: NetworkingInventory): GuestAttachment[] {
-  return data.machines.flatMap(machine => machine.interfaces.flatMap((nic, index) => {
+  return data.machines.flatMap(machine => machine.devices.interfaces.flatMap((nic, index) => {
     const via = item.kind === 'network'
       ? (nic.type === 'network' && nic.source.network === item.network.name ? 'Network reference' : null)
       : hostAssociation(item.link, machine, nic, data.networks)

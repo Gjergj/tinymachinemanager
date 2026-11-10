@@ -5,16 +5,16 @@ import type { MachineInventory } from '../../bindings/github.com/Gjergj/tinymach
 import { MachinesView } from './MachinesView'
 
 function guest(uuid: string, name: string, extra: Partial<Domain> = {}): Domain {
-  return { uuid, name, state: 'running' as Domain['state'], active: true, persistent: true,
-    vcpus: 2, memoryKiB: 4194304, maxMemoryKiB: 8388608, interfaces: [], ...extra }
+  return { uuid, name, type: '', os: { type: {} }, devices: { interfaces: [] }, state: 'running' as Domain['state'], active: true, persistent: true,
+    vcpus: 2, memoryKiB: 4194304, maxMemoryKiB: 8388608, ...extra }
 }
 
 const inventory = [
   guest('one', 'atlas-web'),
-  guest('two', 'atlas-db', { state: 'paused' as Domain['state'], interfaces: [
+  guest('two', 'atlas-db', { state: 'paused' as Domain['state'], devices: { interfaces: [
     { type: 'network', source: { network: 'lab', portGroup: 'services' }, model: 'virtio', mac: '52:54:00:00:00:02',
       vlan: { trunk: false, tags: [{ id: 20 }] }, actual: { type: 'bridge', source: { bridge: 'virbr10' } } },
-  ] }),
+  ] } }),
   guest('three', 'ubuntu-test', { active: false, state: 'shutoff' as Domain['state'], memoryKiB: 0 }),
 ]
 
@@ -57,7 +57,7 @@ describe('Machines view', () => {
     fireEvent.click(screen.getByRole('tab', { name: /Stopped/ }))
     const details = screen.getByRole('complementary', { name: 'Selected machine' })
     expect(within(details).getByRole('heading', { name: 'ubuntu-test' })).toBeInTheDocument()
-    expect(within(details).getByText('Not reported')).toBeInTheDocument()
+    expect(within(details).getByText('Memory').nextElementSibling).toHaveTextContent('Not reported')
   })
 
   it('refreshes at five-second intervals without a manual Refresh button', async () => {
@@ -196,5 +196,50 @@ describe('Machines view', () => {
     await showMachines(vi.fn().mockResolvedValue(snapshot([inventory[0]], { memoryKiB: 0, logicalCPUs: 0 })))
     expect(screen.getByText('4 / — GiB')).toBeInTheDocument()
     expect(screen.getByText('2 / —')).toBeInTheDocument()
+  })
+
+  it('shows nested XML platform metadata and updates it with the selected guest on refresh', async () => {
+    const load = vi.fn().mockResolvedValueOnce(snapshot([guest('one', 'platform-vm', {
+      type: 'kvm', os: { type: { value: 'hvm', arch: 'x86_64', machine: 'pc-q35-10.2' }, firmware: 'efi',
+        loader: { type: 'pflash', path: '/usr/share/OVMF/OVMF_CODE_4M.ms.fd', secure: 'yes' } },
+      devices: { emulator: '/usr/bin/qemu-system-x86_64', interfaces: [] },
+    })])).mockResolvedValueOnce(snapshot([guest('one', 'platform-vm', {
+      type: 'qemu', os: { type: { arch: 'aarch64' }, firmware: 'bios' },
+      devices: { emulator: '/usr/bin/qemu-system-aarch64', interfaces: [] },
+    })]))
+    await showMachines(load)
+    let platform = screen.getByRole('region', { name: 'Platform' })
+    expect(within(platform).getByText('Hypervisor').nextElementSibling).toHaveTextContent('KVM')
+    expect(within(platform).getByText('Architecture').nextElementSibling).toHaveTextContent('x86_64')
+    expect(within(platform).getByText('Emulator').nextElementSibling).toHaveTextContent('/usr/bin/qemu-system-x86_64')
+    expect(within(platform).getByText('Firmware').nextElementSibling).toHaveTextContent('UEFI')
+    expect(within(platform).getByText('/usr/share/OVMF/OVMF_CODE_4M.ms.fd')).toBeInTheDocument()
+    await advance()
+    platform = screen.getByRole('region', { name: 'Platform' })
+    expect(within(platform).getByText('Hypervisor').nextElementSibling).toHaveTextContent('QEMU')
+    expect(within(platform).getByText('Architecture').nextElementSibling).toHaveTextContent('aarch64')
+    expect(within(platform).getByText('Emulator').nextElementSibling).toHaveTextContent('/usr/bin/qemu-system-aarch64')
+    expect(within(platform).getByText('Firmware').nextElementSibling).toHaveTextContent('BIOS')
+    expect(screen.queryByText('/usr/share/OVMF/OVMF_CODE_4M.ms.fd')).not.toBeInTheDocument()
+  })
+
+  it('shows unreported platform fields without inventing a hypervisor or BIOS default', async () => {
+    await showMachines(vi.fn().mockResolvedValue(snapshot([inventory[0]])))
+    const platform = screen.getByRole('region', { name: 'Platform' })
+    expect(within(platform).getAllByText('Not reported')).toHaveLength(4)
+    expect(within(platform).queryByText('BIOS')).not.toBeInTheDocument()
+    expect(within(platform).queryByText('KVM')).not.toBeInTheDocument()
+  })
+
+  it.each<{ os: Domain['os']; expected: string }>([
+    { os: { type: {}, firmware: 'bios' }, expected: 'BIOS' },
+    { os: { type: {}, loader: { type: 'pflash' } }, expected: 'UEFI' },
+    { os: { type: {}, loader: { type: 'rom', path: '/custom/firmware.fd' } }, expected: 'Not reported' },
+    { os: { type: {}, firmware: 'future-firmware', loader: { type: 'pflash' } }, expected: 'future-firmware' },
+  ])('uses explicit firmware or a pflash loader without classifying ROM-only firmware ($expected)', async ({ os, expected }) => {
+    await showMachines(vi.fn().mockResolvedValue(snapshot([guest('one', 'platform-vm', { type: 'future-hv', os })])))
+    const platform = screen.getByRole('region', { name: 'Platform' })
+    expect(within(platform).getByText('Firmware').nextElementSibling).toHaveTextContent(expected)
+    expect(within(platform).getByText('Hypervisor').nextElementSibling).toHaveTextContent('future-hv')
   })
 })

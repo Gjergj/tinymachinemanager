@@ -15,7 +15,7 @@ func TestMachinesServiceReturnsDomainInventory(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(guests) != 1 || guests[0].Name != "test" || guests[0].UUID == "" || !guests[0].Active || guests[0].Interfaces == nil {
+	if len(guests) != 1 || guests[0].Name != "test" || guests[0].UUID == "" || !guests[0].Active || guests[0].Devices.Interfaces == nil {
 		t.Fatalf("unexpected machine inventory: %+v", guests)
 	}
 }

@@ -20,7 +20,7 @@ function MachineTable({ machines, selectedUUID, onSelect }: { machines: Domain[]
     <tbody>{machines.map(machine => <tr key={machine.uuid} data-selected={selectedUUID === machine.uuid || undefined}>
       <th scope="row"><Button className="machine-name" onClick={() => onSelect(machine.uuid)} aria-pressed={selectedUUID === machine.uuid}><MachineIcon /><span>{machine.name}</span></Button></th>
       <td><span className="machine-state" data-state={machine.state}>{stateLabel(machine.state)}</span></td>
-      <td className="numeric">{machine.vcpus}</td><td className="numeric">{machine.memoryKiB ? memoryLabel(machine.memoryKiB) : '—'}</td><td className="numeric">{machine.interfaces.length}</td>
+      <td className="numeric">{machine.vcpus}</td><td className="numeric">{machine.memoryKiB ? memoryLabel(machine.memoryKiB) : '—'}</td><td className="numeric">{machine.devices.interfaces.length}</td>
     </tr>)}</tbody>
   </table></div>
 }

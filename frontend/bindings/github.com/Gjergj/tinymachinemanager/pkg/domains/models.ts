@@ -76,11 +76,43 @@ export class DeviceAddress {
 }
 
 /**
+ * Devices groups the supported <devices> entries; it is not an exhaustive XML
+ * model. Interfaces remain in device order and serialize as [] when absent.
+ */
+export class Devices {
+    "emulator"?: string;
+    "interfaces": Interface[];
+
+    /** Creates a new Devices instance. */
+    constructor($$source: Partial<Devices> = {}) {
+        if (!("interfaces" in $$source)) {
+            this["interfaces"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Devices instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Devices {
+        const $$createField1_0 = $$createType4;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("interfaces" in $$parsedSource) {
+            $$parsedSource["interfaces"] = $$createField1_0($$parsedSource["interfaces"]);
+        }
+        return new Devices($$parsedSource as Partial<Devices>);
+    }
+}
+
+/**
  * Domain is a snapshot of a guest
+ * Type, OS and Devices follow the domain XML's configuration groups.
  * Memory fields are in KiB and describe libvirt's allocation/configuration,
  * no the memory consumption inside the guest.
  */
 export class Domain {
+    "type": string;
     "uuid": string;
     "name": string;
     "state": State;
@@ -89,10 +121,14 @@ export class Domain {
     "vcpus": number;
     "memoryKiB": number;
     "maxMemoryKiB": number;
-    "interfaces": Interface[];
+    "os": OS;
+    "devices": Devices;
 
     /** Creates a new Domain instance. */
     constructor($$source: Partial<Domain> = {}) {
+        if (!("type" in $$source)) {
+            this["type"] = "";
+        }
         if (!("uuid" in $$source)) {
             this["uuid"] = "";
         }
@@ -117,8 +153,11 @@ export class Domain {
         if (!("maxMemoryKiB" in $$source)) {
             this["maxMemoryKiB"] = 0;
         }
-        if (!("interfaces" in $$source)) {
-            this["interfaces"] = [];
+        if (!("os" in $$source)) {
+            this["os"] = (new OS());
+        }
+        if (!("devices" in $$source)) {
+            this["devices"] = (new Devices());
         }
 
         Object.assign(this, $$source);
@@ -128,12 +167,66 @@ export class Domain {
      * Creates a new Domain instance from a string or object.
      */
     static createFrom($$source: any = {}): Domain {
-        const $$createField8_0 = $$createType4;
+        const $$createField9_0 = $$createType5;
+        const $$createField10_0 = $$createType6;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        if ("interfaces" in $$parsedSource) {
-            $$parsedSource["interfaces"] = $$createField8_0($$parsedSource["interfaces"]);
+        if ("os" in $$parsedSource) {
+            $$parsedSource["os"] = $$createField9_0($$parsedSource["os"]);
+        }
+        if ("devices" in $$parsedSource) {
+            $$parsedSource["devices"] = $$createField10_0($$parsedSource["devices"]);
         }
         return new Domain($$parsedSource as Partial<Domain>);
+    }
+}
+
+export class Firmware {
+    "features": FirmwareFeature[];
+
+    /** Creates a new Firmware instance. */
+    constructor($$source: Partial<Firmware> = {}) {
+        if (!("features" in $$source)) {
+            this["features"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Firmware instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Firmware {
+        const $$createField0_0 = $$createType8;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("features" in $$parsedSource) {
+            $$parsedSource["features"] = $$createField0_0($$parsedSource["features"]);
+        }
+        return new Firmware($$parsedSource as Partial<Firmware>);
+    }
+}
+
+/**
+ * Enabled preserves yes/no, unspecified and future libvirt values.
+ */
+export class FirmwareFeature {
+    "name": string;
+    "enabled"?: string;
+
+    /** Creates a new FirmwareFeature instance. */
+    constructor($$source: Partial<FirmwareFeature> = {}) {
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new FirmwareFeature instance from a string or object.
+     */
+    static createFrom($$source: any = {}): FirmwareFeature {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new FirmwareFeature($$parsedSource as Partial<FirmwareFeature>);
     }
 }
 
@@ -172,7 +265,7 @@ export class Interface {
     static createFrom($$source: any = {}): Interface {
         const $$createField1_0 = $$createType0;
         const $$createField4_0 = $$createType2;
-        const $$createField11_0 = $$createType6;
+        const $$createField11_0 = $$createType10;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("source" in $$parsedSource) {
             $$parsedSource["source"] = $$createField1_0($$parsedSource["source"]);
@@ -214,12 +307,123 @@ export class InterfaceSource {
      * Creates a new InterfaceSource instance from a string or object.
      */
     static createFrom($$source: any = {}): InterfaceSource {
-        const $$createField9_0 = $$createType8;
+        const $$createField9_0 = $$createType12;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("deviceAddress" in $$parsedSource) {
             $$parsedSource["deviceAddress"] = $$createField9_0($$parsedSource["deviceAddress"]);
         }
         return new InterfaceSource($$parsedSource as Partial<InterfaceSource>);
+    }
+}
+
+export class Loader {
+    "path"?: string;
+    "type"?: string;
+    "readOnly"?: string;
+    "secure"?: string;
+    "format"?: string;
+
+    /** Creates a new Loader instance. */
+    constructor($$source: Partial<Loader> = {}) {
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Loader instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Loader {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new Loader($$parsedSource as Partial<Loader>);
+    }
+}
+
+export class NVRAM {
+    "path"?: string;
+    "template"?: string;
+    "templateFormat"?: string;
+    "format"?: string;
+
+    /** Creates a new NVRAM instance. */
+    constructor($$source: Partial<NVRAM> = {}) {
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new NVRAM instance from a string or object.
+     */
+    static createFrom($$source: any = {}): NVRAM {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new NVRAM($$parsedSource as Partial<NVRAM>);
+    }
+}
+
+/**
+ * OS follows <os>: Firmware is its selection attribute, while FirmwareInfo
+ * describes its optional <firmware> child. Unspecified values stay unspecified.
+ */
+export class OS {
+    "type": OSType;
+    "firmware"?: string;
+    "firmwareInfo"?: Firmware | null;
+    "loader"?: Loader | null;
+    "nvram"?: NVRAM | null;
+
+    /** Creates a new OS instance. */
+    constructor($$source: Partial<OS> = {}) {
+        if (!("type" in $$source)) {
+            this["type"] = (new OSType());
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new OS instance from a string or object.
+     */
+    static createFrom($$source: any = {}): OS {
+        const $$createField0_0 = $$createType13;
+        const $$createField2_0 = $$createType15;
+        const $$createField3_0 = $$createType17;
+        const $$createField4_0 = $$createType19;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("type" in $$parsedSource) {
+            $$parsedSource["type"] = $$createField0_0($$parsedSource["type"]);
+        }
+        if ("firmwareInfo" in $$parsedSource) {
+            $$parsedSource["firmwareInfo"] = $$createField2_0($$parsedSource["firmwareInfo"]);
+        }
+        if ("loader" in $$parsedSource) {
+            $$parsedSource["loader"] = $$createField3_0($$parsedSource["loader"]);
+        }
+        if ("nvram" in $$parsedSource) {
+            $$parsedSource["nvram"] = $$createField4_0($$parsedSource["nvram"]);
+        }
+        return new OS($$parsedSource as Partial<OS>);
+    }
+}
+
+/**
+ * OSType contains the text and attributes of <os><type>, not the hypervisor.
+ */
+export class OSType {
+    "value"?: string;
+    "arch"?: string;
+    "machine"?: string;
+
+    /** Creates a new OSType instance. */
+    constructor($$source: Partial<OSType> = {}) {
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new OSType instance from a string or object.
+     */
+    static createFrom($$source: any = {}): OSType {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new OSType($$parsedSource as Partial<OSType>);
     }
 }
 
@@ -248,7 +452,18 @@ const $$createType1 = networks$0.VLAN.createFrom;
 const $$createType2 = $Create.Nullable($$createType1);
 const $$createType3 = Interface.createFrom;
 const $$createType4 = $Create.Array($$createType3);
-const $$createType5 = Attachment.createFrom;
-const $$createType6 = $Create.Nullable($$createType5);
-const $$createType7 = DeviceAddress.createFrom;
-const $$createType8 = $Create.Nullable($$createType7);
+const $$createType5 = OS.createFrom;
+const $$createType6 = Devices.createFrom;
+const $$createType7 = FirmwareFeature.createFrom;
+const $$createType8 = $Create.Array($$createType7);
+const $$createType9 = Attachment.createFrom;
+const $$createType10 = $Create.Nullable($$createType9);
+const $$createType11 = DeviceAddress.createFrom;
+const $$createType12 = $Create.Nullable($$createType11);
+const $$createType13 = OSType.createFrom;
+const $$createType14 = Firmware.createFrom;
+const $$createType15 = $Create.Nullable($$createType14);
+const $$createType16 = Loader.createFrom;
+const $$createType17 = $Create.Nullable($$createType16);
+const $$createType18 = NVRAM.createFrom;
+const $$createType19 = $Create.Nullable($$createType18);

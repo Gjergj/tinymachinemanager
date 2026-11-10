@@ -27,18 +27,21 @@ const (
 )
 
 // Domain is a snapshot of a guest
+// Type, OS and Devices follow the domain XML's configuration groups.
 // Memory fields are in KiB and describe libvirt's allocation/configuration,
 // no the memory consumption inside the guest.
 type Domain struct {
-	UUID         string      `json:"uuid"`
-	Name         string      `json:"name"`
-	State        State       `json:"state"`
-	Active       bool        `json:"active"`
-	Persistent   bool        `json:"persistent"`
-	VCPUs        uint        `json:"vcpus"`
-	MemoryKiB    uint64      `json:"memoryKiB"`
-	MaxMemoryKiB uint64      `json:"maxMemoryKiB"`
-	Interfaces   []Interface `json:"interfaces"`
+	Type         string  `json:"type"`
+	UUID         string  `json:"uuid"`
+	Name         string  `json:"name"`
+	State        State   `json:"state"`
+	Active       bool    `json:"active"`
+	Persistent   bool    `json:"persistent"`
+	VCPUs        uint    `json:"vcpus"`
+	MemoryKiB    uint64  `json:"memoryKiB"`
+	MaxMemoryKiB uint64  `json:"maxMemoryKiB"`
+	OS           OS      `json:"os"`
+	Devices      Devices `json:"devices"`
 }
 
 // List enumerates active and inactive domains visible through uri using a
@@ -129,17 +132,17 @@ func describe(dom *libvirt.Domain) (Domain, error) {
 	// or their definition when stopped. No guest agent or host changes are needed.
 	xml, err := dom.GetXMLDesc(0)
 	if err != nil {
-		return Domain{}, fmt.Errorf("get interface XML for domain %q (%s): %w", name, uuid, err)
+		return Domain{}, fmt.Errorf("get XML for domain %q (%s): %w", name, uuid, err)
 	}
-	interfaces, err := parseInterfaces(xml)
+	configuration, err := parseDomainXML(xml)
 	if err != nil {
-		return Domain{}, fmt.Errorf("read interfaces for domain %q (%s): %w", name, uuid, err)
+		return Domain{}, fmt.Errorf("read XML for domain %q (%s): %w", name, uuid, err)
 	}
 	return Domain{
 		UUID: uuid, Name: name, State: stateFromLibvirt(info.State),
 		Active: active, Persistent: persistent, VCPUs: info.NrVirtCpu,
 		MemoryKiB: info.Memory, MaxMemoryKiB: info.MaxMem,
-		Interfaces: interfaces,
+		Type: configuration.Type, OS: configuration.OS, Devices: configuration.Devices,
 	}, nil
 }
 

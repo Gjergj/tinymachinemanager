@@ -1,11 +1,6 @@
 package domains
 
-import (
-	"encoding/xml"
-	"fmt"
-
-	"github.com/Gjergj/tinymachinemanager/pkg/networks"
-)
+import "github.com/Gjergj/tinymachinemanager/pkg/networks"
 
 // InterfaceSource preserves libvirt's attachment references. For Type=network,
 // Network/PortGroup refer to a network in the same libvirt URI. Bridge and Device
@@ -71,39 +66,32 @@ func (a attachmentXML) summary() Attachment {
 	return Attachment{Type: a.Type, Source: a.Source, VirtualPortType: a.VirtualPort.Type, PortIsolated: a.Port.Isolated, VLAN: a.VLAN}
 }
 
-func parseInterfaces(data string) ([]Interface, error) {
-	var raw struct {
-		XMLName xml.Name `xml:"domain"`
-		Devices struct {
-			Interfaces []struct {
-				attachmentXML
-				MAC struct {
-					Address string `xml:"address,attr"`
-				} `xml:"mac"`
-				Model struct {
-					Type string `xml:"type,attr"`
-				} `xml:"model"`
-				Target struct {
-					Device string `xml:"dev,attr"`
-				} `xml:"target"`
-				Link struct {
-					State string `xml:"state,attr"`
-				} `xml:"link"`
-				Alias struct {
-					Name string `xml:"name,attr"`
-				} `xml:"alias"`
-				Filter struct {
-					Name string `xml:"filter,attr"`
-				} `xml:"filterref"`
-				Actual *attachmentXML `xml:"actual"`
-			} `xml:"interface"`
-		} `xml:"devices"`
-	}
-	if err := xml.Unmarshal([]byte(data), &raw); err != nil {
-		return nil, fmt.Errorf("parse libvirt domain interfaces: %w", err)
-	}
-	result := make([]Interface, 0, len(raw.Devices.Interfaces))
-	for _, iface := range raw.Devices.Interfaces {
+type interfaceXML struct {
+	attachmentXML
+	MAC struct {
+		Address string `xml:"address,attr"`
+	} `xml:"mac"`
+	Model struct {
+		Type string `xml:"type,attr"`
+	} `xml:"model"`
+	Target struct {
+		Device string `xml:"dev,attr"`
+	} `xml:"target"`
+	Link struct {
+		State string `xml:"state,attr"`
+	} `xml:"link"`
+	Alias struct {
+		Name string `xml:"name,attr"`
+	} `xml:"alias"`
+	Filter struct {
+		Name string `xml:"filter,attr"`
+	} `xml:"filterref"`
+	Actual *attachmentXML `xml:"actual"`
+}
+
+func interfacesFromXML(raw []interfaceXML) []Interface {
+	result := make([]Interface, 0, len(raw))
+	for _, iface := range raw {
 		nic := Interface{
 			Attachment: iface.attachmentXML.summary(), MAC: iface.MAC.Address, Model: iface.Model.Type,
 			Target: iface.Target.Device, LinkState: iface.Link.State, Alias: iface.Alias.Name, Filter: iface.Filter.Name,
@@ -114,5 +102,5 @@ func parseInterfaces(data string) ([]Interface, error) {
 		}
 		result = append(result, nic)
 	}
-	return result, nil
+	return result
 }

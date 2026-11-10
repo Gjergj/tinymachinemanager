@@ -1,6 +1,6 @@
 import type { Attachment, Domain, Interface } from '../../bindings/github.com/Gjergj/tinymachinemanager/pkg/domains/models'
 import { MachineIcon, NetworkIcon } from './Icons'
-import { memoryLabel, stateLabel } from './format'
+import { firmwareLabel, hypervisorLabel, memoryLabel, stateLabel } from './format'
 
 function sourceName(attachment: Attachment) {
   const source = attachment.source
@@ -39,11 +39,19 @@ function InterfaceDetails({ nic, index, active }: { nic: Interface; index: numbe
 export function MachineDetails({ machine }: { machine: Domain }) {
   return <aside className="machine-details" aria-label="Selected machine">
     <div className="selected-heading"><span className="machine-mark"><MachineIcon /></span><div><h2>{machine.name}</h2><span className="machine-state" data-state={machine.state}>{stateLabel(machine.state)}</span></div></div>
+    <section className="platform-details" aria-label="Platform"><h3 className="eyebrow">Platform</h3>
+      <dl className="detail-list">
+        <dt>Hypervisor</dt><dd>{hypervisorLabel(machine.type)}</dd>
+        <dt>Architecture</dt><dd className="mono">{machine.os.type.arch || 'Not reported'}</dd>
+        <dt>Emulator</dt><dd className="mono">{machine.devices.emulator || 'Not reported'}</dd>
+        <dt>Firmware</dt><dd>{firmwareLabel(machine.os)}{machine.os.loader?.path && <code className="firmware-path">{machine.os.loader.path}</code>}</dd>
+      </dl>
+    </section>
     <section><h3 className="eyebrow">Assigned resources</h3>
       <dl className="detail-list"><dt>Virtual CPUs</dt><dd>{machine.vcpus}</dd><dt>Memory</dt><dd>{memoryLabel(machine.memoryKiB)}</dd><dt>Maximum memory</dt><dd>{memoryLabel(machine.maxMemoryKiB)}</dd><dt>Definition</dt><dd>{machine.persistent ? 'Persistent' : 'Transient'}</dd></dl>
     </section>
-    <section className="network-details"><div className="section-heading"><h3>Network interfaces</h3><span className="badge">{machine.interfaces.length}</span></div>
-      {machine.interfaces.length ? machine.interfaces.map((nic, index) => <InterfaceDetails key={(nic.mac || nic.alias || 'nic') + '-' + index} nic={nic} index={index} active={machine.active} />) : <p className="secondary no-interfaces">No network interfaces defined.</p>}
+    <section className="network-details"><div className="section-heading"><h3>Network interfaces</h3><span className="badge">{machine.devices.interfaces.length}</span></div>
+      {machine.devices.interfaces.length ? machine.devices.interfaces.map((nic, index) => <InterfaceDetails key={(nic.mac || nic.alias || 'nic') + '-' + index} nic={nic} index={index} active={machine.active} />) : <p className="secondary no-interfaces">No network interfaces defined.</p>}
     </section>
     <div className="machine-identity"><span className="eyebrow">UUID</span><code>{machine.uuid}</code></div>
   </aside>

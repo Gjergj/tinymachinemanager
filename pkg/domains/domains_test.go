@@ -63,7 +63,7 @@ func defineTestDomain(t *testing.T, conn *libvirt.Connect, name, uuid string, ru
   <name>%s</name><uuid>%s</uuid>
   <memory unit="KiB">524288</memory>
   <currentMemory unit="KiB">262144</currentMemory>
-  <vcpu>2</vcpu><os><type>hvm</type></os>
+  <vcpu>2</vcpu><os><type arch="i686" machine="pc">hvm</type></os><devices><emulator>/usr/bin/test-hv</emulator></devices>
 </domain>`, name, uuid)
 	var dom *libvirt.Domain
 	var err error
@@ -103,10 +103,15 @@ func TestListIncludesAllDomainsAndCopiesMetadata(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := []Domain{
-		{UUID: "00000000-0000-4000-8000-000000000001", Name: "alpha", State: StateRunning, Active: true, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288, Interfaces: []Interface{}},
-		{UUID: "00000000-0000-4000-8000-000000000002", Name: "middle", State: StatePaused, Active: true, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288, Interfaces: []Interface{}},
-		{UUID: "00000000-0000-4000-8000-000000000004", Name: "volatile", State: StateRunning, Active: true, Persistent: false, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288, Interfaces: []Interface{}},
-		{UUID: "00000000-0000-4000-8000-000000000003", Name: "zeta", State: StateShutoff, Active: false, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288, Interfaces: []Interface{}},
+		{UUID: "00000000-0000-4000-8000-000000000001", Name: "alpha", State: StateRunning, Active: true, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288},
+		{UUID: "00000000-0000-4000-8000-000000000002", Name: "middle", State: StatePaused, Active: true, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288},
+		{UUID: "00000000-0000-4000-8000-000000000004", Name: "volatile", State: StateRunning, Active: true, Persistent: false, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288},
+		{UUID: "00000000-0000-4000-8000-000000000003", Name: "zeta", State: StateShutoff, Active: false, Persistent: true, VCPUs: 2, MemoryKiB: 262144, MaxMemoryKiB: 524288},
+	}
+	for i := range want {
+		want[i].Type = "test"
+		want[i].OS = OS{Type: OSType{Value: "hvm", Arch: "i686", Machine: "pc"}}
+		want[i].Devices = Devices{Emulator: "/usr/bin/test-hv", Interfaces: []Interface{}}
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("domains:\n got %+v\nwant %+v", got, want)
