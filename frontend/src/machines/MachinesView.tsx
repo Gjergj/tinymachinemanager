@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Button } from '@base-ui/react/button'
 import { Tabs } from '@base-ui/react/tabs'
 import type { Domain } from '../../bindings/github.com/Gjergj/tinymachinemanager/pkg/domains/models'
-import { InfoIcon, LayersIcon, MachineIcon } from './Icons'
+import { InfoIcon, MachineIcon } from './Icons'
+import { AppShell, type Page } from '../shared/AppShell'
 import { MachineDetails } from './MachineDetails'
 import { ResourceSummary } from './ResourceSummary'
 import { memoryLabel, stateLabel } from './format'
@@ -23,7 +24,7 @@ function MachineTable({ machines, selectedUUID, onSelect }: { machines: Domain[]
     </tr>)}</tbody>
   </table></div>
 }
-export function MachinesView({ loadMachines }: { loadMachines: LoadMachines }) {
+export function MachinesView({ loadMachines, onNavigate }: { loadMachines: LoadMachines; onNavigate?: (page: Page) => void }) {
   const { machines, host, loading, error, updatedAt } = useMachines(loadMachines)
   const [filter, setFilter] = useState<Filter>('all')
   const [selectedUUID, setSelectedUUID] = useState<string | null>(null)
@@ -36,13 +37,7 @@ export function MachinesView({ loadMachines }: { loadMachines: LoadMachines }) {
   const counts: Record<Filter, number> = { all: machines.length, active: machines.filter(machine => machine.active).length, stopped: machines.filter(machine => !machine.active).length }
   const stale = Boolean(error && updatedAt)
   const firstLoad = loading && !updatedAt
-  return <div className="app-shell">
-    <aside className="app-sidebar" aria-label="Application">
-      <div className="app-brand"><span className="brand-symbol"><LayersIcon /></span><span>Tiny Machine<br />Manager</span></div>
-      <nav aria-label="Main navigation"><span className="navigation-item" aria-current="page"><MachineIcon />Machines</span></nav>
-      <div className="sidebar-connection"><span className="eyebrow">Connection</span><strong>Local host</strong><code>qemu:///system</code></div>
-    </aside>
-    <div className="workspace"><main className="machines-page">
+  return <AppShell page="machines" onNavigate={onNavigate} loading={loading} stale={stale} updatedAt={updatedAt}>
       <header className="page-heading"><div><h1>Virtual machines</h1></div>
         {/* <span className="auto-refresh-label">Auto-refresh · 5s</span> */}
       </header>
@@ -61,6 +56,5 @@ export function MachinesView({ loadMachines }: { loadMachines: LoadMachines }) {
             </section>{selected && <MachineDetails machine={selected} />}</div>}
         </Tabs.Panel>)}
       </Tabs.Root>
-    </main><footer className="workspace-footer"><span>Local host <span className="footer-separator">/</span> System QEMU/KVM</span><span>{loading ? 'Reading inventory…' : stale ? 'Last loaded inventory · refresh failed' : updatedAt ? 'Updated ' + updatedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Not connected'}</span></footer></div>
-  </div>
+  </AppShell>
 }

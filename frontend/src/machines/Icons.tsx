@@ -13,6 +13,9 @@ export function LayersIcon(props: Props) {
 export function NetworkIcon(props: Props) {
   return <Icon {...props}><rect x="9" y="3" width="6" height="5" rx="1" /><rect x="2" y="16" width="6" height="5" rx="1" /><rect x="16" y="16" width="6" height="5" rx="1" /><path d="M12 8v4M5 16v-4h14v4" /></Icon>
 }
+export function InterfaceIcon(props: Props) {
+  return <Icon {...props}><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7v5h2v3h4v-3h2V7H8ZM9 18h6" /></Icon>
+}
 export function InfoIcon(props: Props) {
   return <Icon {...props}><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7h.01" /></Icon>
 }

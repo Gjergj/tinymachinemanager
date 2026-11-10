@@ -5,6 +5,234 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+export class DHCP {
+    "ranges": DHCPRange[];
+    "hosts": DHCPHost[];
+
+    /** Creates a new DHCP instance. */
+    constructor($$source: Partial<DHCP> = {}) {
+        if (!("ranges" in $$source)) {
+            this["ranges"] = [];
+        }
+        if (!("hosts" in $$source)) {
+            this["hosts"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DHCP instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DHCP {
+        const $$createField0_0 = $$createType1;
+        const $$createField1_0 = $$createType3;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("ranges" in $$parsedSource) {
+            $$parsedSource["ranges"] = $$createField0_0($$parsedSource["ranges"]);
+        }
+        if ("hosts" in $$parsedSource) {
+            $$parsedSource["hosts"] = $$createField1_0($$parsedSource["hosts"]);
+        }
+        return new DHCP($$parsedSource as Partial<DHCP>);
+    }
+}
+
+export class DHCPHost {
+    "mac"?: string;
+    "id"?: string;
+    "name"?: string;
+    "ip": string;
+
+    /** Creates a new DHCPHost instance. */
+    constructor($$source: Partial<DHCPHost> = {}) {
+        if (!("ip" in $$source)) {
+            this["ip"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DHCPHost instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DHCPHost {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DHCPHost($$parsedSource as Partial<DHCPHost>);
+    }
+}
+
+export class DHCPRange {
+    "start": string;
+    "end": string;
+
+    /** Creates a new DHCPRange instance. */
+    constructor($$source: Partial<DHCPRange> = {}) {
+        if (!("start" in $$source)) {
+            this["start"] = "";
+        }
+        if (!("end" in $$source)) {
+            this["end"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DHCPRange instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DHCPRange {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DHCPRange($$parsedSource as Partial<DHCPRange>);
+    }
+}
+
+/**
+ * IPConfig describes the virtual network's address/DHCP configuration, not a
+ * discovered guest address. Prefix is a pointer to distinguish /0 from absent.
+ */
+export class IPConfig {
+    "family": string;
+    "address": string;
+    "netmask"?: string;
+    "prefix"?: number | null;
+    "dhcp"?: DHCP | null;
+
+    /** Creates a new IPConfig instance. */
+    constructor($$source: Partial<IPConfig> = {}) {
+        if (!("family" in $$source)) {
+            this["family"] = "";
+        }
+        if (!("address" in $$source)) {
+            this["address"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new IPConfig instance from a string or object.
+     */
+    static createFrom($$source: any = {}): IPConfig {
+        const $$createField4_0 = $$createType5;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("dhcp" in $$parsedSource) {
+            $$parsedSource["dhcp"] = $$createField4_0($$parsedSource["dhcp"]);
+        }
+        return new IPConfig($$parsedSource as Partial<IPConfig>);
+    }
+}
+
+/**
+ * Network is a snapshot of a virtual network known to the selected libvirt
+ * connection. It does not include Linux interfaces/bridges outside libvirt.
+ */
+export class Network {
+    "uuid": string;
+    "name": string;
+    "active": boolean;
+    "persistent": boolean;
+    "autostart": boolean;
+    "bridge"?: string;
+    "forwardMode": string;
+    "forwardDevice"?: string;
+    "forwardInterfaces": string[];
+    "virtualPortType"?: string;
+    "portIsolated"?: string;
+    "vlan"?: VLAN | null;
+    "portGroups": PortGroup[];
+    "ips": IPConfig[];
+    "dnsDomain"?: string;
+
+    /** Creates a new Network instance. */
+    constructor($$source: Partial<Network> = {}) {
+        if (!("uuid" in $$source)) {
+            this["uuid"] = "";
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("active" in $$source)) {
+            this["active"] = false;
+        }
+        if (!("persistent" in $$source)) {
+            this["persistent"] = false;
+        }
+        if (!("autostart" in $$source)) {
+            this["autostart"] = false;
+        }
+        if (!("forwardMode" in $$source)) {
+            this["forwardMode"] = "";
+        }
+        if (!("forwardInterfaces" in $$source)) {
+            this["forwardInterfaces"] = [];
+        }
+        if (!("portGroups" in $$source)) {
+            this["portGroups"] = [];
+        }
+        if (!("ips" in $$source)) {
+            this["ips"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Network instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Network {
+        const $$createField8_0 = $$createType6;
+        const $$createField11_0 = $$createType8;
+        const $$createField12_0 = $$createType10;
+        const $$createField13_0 = $$createType12;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("forwardInterfaces" in $$parsedSource) {
+            $$parsedSource["forwardInterfaces"] = $$createField8_0($$parsedSource["forwardInterfaces"]);
+        }
+        if ("vlan" in $$parsedSource) {
+            $$parsedSource["vlan"] = $$createField11_0($$parsedSource["vlan"]);
+        }
+        if ("portGroups" in $$parsedSource) {
+            $$parsedSource["portGroups"] = $$createField12_0($$parsedSource["portGroups"]);
+        }
+        if ("ips" in $$parsedSource) {
+            $$parsedSource["ips"] = $$createField13_0($$parsedSource["ips"]);
+        }
+        return new Network($$parsedSource as Partial<Network>);
+    }
+}
+
+export class PortGroup {
+    "name": string;
+    "default": boolean;
+    "vlan"?: VLAN | null;
+    "virtualPortType"?: string;
+
+    /** Creates a new PortGroup instance. */
+    constructor($$source: Partial<PortGroup> = {}) {
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("default" in $$source)) {
+            this["default"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new PortGroup instance from a string or object.
+     */
+    static createFrom($$source: any = {}): PortGroup {
+        const $$createField2_0 = $$createType8;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("vlan" in $$parsedSource) {
+            $$parsedSource["vlan"] = $$createField2_0($$parsedSource["vlan"]);
+        }
+        return new PortGroup($$parsedSource as Partial<PortGroup>);
+    }
+}
+
 /**
  * VLAN preserves tags and trunk/native-tag settings. A nil *VLAN means no
  * explicit setting at that level; libvirt may inherit one from a network/portgroup.
@@ -29,7 +257,7 @@ export class VLAN {
      * Creates a new VLAN instance from a string or object.
      */
     static createFrom($$source: any = {}): VLAN {
-        const $$createField1_0 = $$createType1;
+        const $$createField1_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("tags" in $$parsedSource) {
             $$parsedSource["tags"] = $$createField1_0($$parsedSource["tags"]);
@@ -61,5 +289,18 @@ export class VLANTag {
 }
 
 // Private type creation functions
-const $$createType0 = VLANTag.createFrom;
+const $$createType0 = DHCPRange.createFrom;
 const $$createType1 = $Create.Array($$createType0);
+const $$createType2 = DHCPHost.createFrom;
+const $$createType3 = $Create.Array($$createType2);
+const $$createType4 = DHCP.createFrom;
+const $$createType5 = $Create.Nullable($$createType4);
+const $$createType6 = $Create.Array($Create.Any);
+const $$createType7 = VLAN.createFrom;
+const $$createType8 = $Create.Nullable($$createType7);
+const $$createType9 = PortGroup.createFrom;
+const $$createType10 = $Create.Array($$createType9);
+const $$createType11 = IPConfig.createFrom;
+const $$createType12 = $Create.Array($$createType11);
+const $$createType13 = VLANTag.createFrom;
+const $$createType14 = $Create.Array($$createType13);

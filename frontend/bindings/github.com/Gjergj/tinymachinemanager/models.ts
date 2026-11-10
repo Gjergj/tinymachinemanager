@@ -11,6 +11,12 @@ import * as domains$0 from "./pkg/domains/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as hostinfo$0 from "./pkg/hostinfo/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as hostnet$0 from "./pkg/hostnet/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as networks$0 from "./pkg/networks/models.js";
 
 /**
  * MachineInventory carries guest assignments and capacity from the same host.
@@ -48,7 +54,95 @@ export class MachineInventory {
     }
 }
 
+/**
+ * NetworkingInventory combines read-only snapshots, not an atomic topology.
+ * Interfaces belong to the local app's network namespace.
+ */
+export class NetworkingInventory {
+    "networks": networks$0.Network[];
+    "interfaces": hostnet$0.Interface[];
+    "machines": domains$0.Domain[];
+    "issues": NetworkingIssue[];
+
+    /** Creates a new NetworkingInventory instance. */
+    constructor($$source: Partial<NetworkingInventory> = {}) {
+        if (!("networks" in $$source)) {
+            this["networks"] = [];
+        }
+        if (!("interfaces" in $$source)) {
+            this["interfaces"] = [];
+        }
+        if (!("machines" in $$source)) {
+            this["machines"] = [];
+        }
+        if (!("issues" in $$source)) {
+            this["issues"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new NetworkingInventory instance from a string or object.
+     */
+    static createFrom($$source: any = {}): NetworkingInventory {
+        const $$createField0_0 = $$createType4;
+        const $$createField1_0 = $$createType6;
+        const $$createField2_0 = $$createType1;
+        const $$createField3_0 = $$createType8;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("networks" in $$parsedSource) {
+            $$parsedSource["networks"] = $$createField0_0($$parsedSource["networks"]);
+        }
+        if ("interfaces" in $$parsedSource) {
+            $$parsedSource["interfaces"] = $$createField1_0($$parsedSource["interfaces"]);
+        }
+        if ("machines" in $$parsedSource) {
+            $$parsedSource["machines"] = $$createField2_0($$parsedSource["machines"]);
+        }
+        if ("issues" in $$parsedSource) {
+            $$parsedSource["issues"] = $$createField3_0($$parsedSource["issues"]);
+        }
+        return new NetworkingInventory($$parsedSource as Partial<NetworkingInventory>);
+    }
+}
+
+/**
+ * NetworkingIssue identifies an unavailable inventory source. Other sources can
+ * still be displayed; an unavailable source is distinct from an empty one.
+ */
+export class NetworkingIssue {
+    "source": string;
+    "message": string;
+
+    /** Creates a new NetworkingIssue instance. */
+    constructor($$source: Partial<NetworkingIssue> = {}) {
+        if (!("source" in $$source)) {
+            this["source"] = "";
+        }
+        if (!("message" in $$source)) {
+            this["message"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new NetworkingIssue instance from a string or object.
+     */
+    static createFrom($$source: any = {}): NetworkingIssue {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new NetworkingIssue($$parsedSource as Partial<NetworkingIssue>);
+    }
+}
+
 // Private type creation functions
 const $$createType0 = domains$0.Domain.createFrom;
 const $$createType1 = $Create.Array($$createType0);
 const $$createType2 = hostinfo$0.Resources.createFrom;
+const $$createType3 = networks$0.Network.createFrom;
+const $$createType4 = $Create.Array($$createType3);
+const $$createType5 = hostnet$0.Interface.createFrom;
+const $$createType6 = $Create.Array($$createType5);
+const $$createType7 = NetworkingIssue.createFrom;
+const $$createType8 = $Create.Array($$createType7);
