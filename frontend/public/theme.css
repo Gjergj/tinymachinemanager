@@ -1,0 +1,27 @@
+/* Central application palette. Component styles consume these semantic tokens.
+   Change colors here; keep layout and component rules in style.css.
+   Charcoal is intentionally dark regardless of the OS appearance. */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --page: #171717;
+  --surface: #212121;
+  --sidebar: #121212;
+  --line: #363636;
+
+  /* Typography */
+  --text: #ededed;
+  --muted: #a3a3a3;
+
+  /* Interaction: navigation, selection, hover and keyboard focus */
+  --accent: #f5f5f5;
+  --accent-soft: #2e2e2e;
+  --focus: #fafafa;
+
+  /* Monochrome states; visible labels and shapes carry their meaning. */
+  --good: #d4d4d4;
+  --warning: #bdbdbd;
+  --error: #f0f0f0;
+  --error-soft: #292929;
+}

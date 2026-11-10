@@ -1,5 +1,6 @@
 // Package hostnet inventories interfaces and kernel bridges in the local Linux
 // network namespace. It never changes interface or network configuration.
+
 package hostnet
 
 import (
@@ -39,6 +40,10 @@ func List() ([]Interface, error) {
 	if runtime.GOOS != "linux" {
 		return nil, fmt.Errorf("host interface enumeration requires Linux, running on %s", runtime.GOOS)
 	}
+
+	// in the future we could use "ip -j -d link" which exposes richer information about link types,
+	// VLAN IDs, parent links, bonds, and tunnels.
+
 	links, err := net.Interfaces()
 	if err != nil {
 		return nil, fmt.Errorf("list local host interfaces: %w", err)
