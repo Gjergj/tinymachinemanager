@@ -242,4 +242,69 @@ describe('Machines view', () => {
     expect(within(platform).getByText('Firmware').nextElementSibling).toHaveTextContent(expected)
     expect(within(platform).getByText('Hypervisor').nextElementSibling).toHaveTextContent('future-hv')
   })
+
+  it('shows IPv4 and IPv6 DHCP addresses under their matching NICs', async () => {
+    await showMachines(vi.fn().mockResolvedValue(snapshot([guest('one', 'leased-vm', {
+      devices: { interfaces: [
+        { type: 'network', source: { network: 'default' }, mac: '00:1A:2B:3C:4D:5E' },
+        { type: 'network', source: { network: 'lab' }, mac: '00:1a:2b:3c:4d:5a' },
+      ] }, dhcp: { interfaces: [
+        { index: 1, mac: '00:1a:2b:3c:4d:5a', addresses: [{ family: 'ipv4', address: '10.0.0.8', prefix: 24 }] },
+        { index: 0, mac: '00:1a:2b:3c:4d:5e', addresses: [
+          { family: 'ipv4', address: '192.168.122.41', prefix: 24 },
+          { family: 'ipv6', address: '2001:db8::41', prefix: 64 },
+        ] },
+      ] },
+    })])))
+    const first = screen.getByRole('region', { name: 'Network interface 1' })
+    const second = screen.getByRole('region', { name: 'Network interface 2' })
+    expect(within(first).getByText('192.168.122.41/24')).toBeInTheDocument()
+    expect(within(first).getByText('2001:db8::41/64')).toBeInTheDocument()
+    expect(within(first).queryByText('10.0.0.8/24')).not.toBeInTheDocument()
+    expect(within(second).getByText('10.0.0.8/24')).toBeInTheDocument()
+  })
+
+  it.each<{ nic: Domain['devices']['interfaces'][number]; dhcp?: Domain['dhcp']; expected: string }>([
+    { nic: { type: 'network', source: { network: 'default' }, mac: '00:1a:2b:3c:4d:5e' }, dhcp: { interfaces: [{ index: 0, mac: '00:1a:2b:3c:4d:5e', addresses: [] }] }, expected: 'No lease reported' },
+    { nic: { type: 'network', source: { network: 'default' }, mac: '00:1a:2b:3c:4d:5e' }, dhcp: { interfaces: [], error: 'Lease permission denied' }, expected: 'Lease data unavailable' },
+    { nic: { type: 'network', source: { network: 'default' }, mac: '00:1a:2b:3c:4d:5e' }, expected: 'Not reported' },
+    { nic: { type: 'bridge', source: { bridge: 'external' }, mac: '00:1a:2b:3c:4d:5e' }, expected: 'Not available' },
+    { nic: { type: 'network', source: { network: 'default' } }, expected: 'Not available' },
+  ])('keeps missing and unavailable DHCP data distinct ($expected)', async ({ nic, dhcp, expected }) => {
+    await showMachines(vi.fn().mockResolvedValue(snapshot([guest('one', 'leased-vm', { devices: { interfaces: [nic] }, dhcp })])))
+    const details = screen.getByRole('region', { name: 'Network interface 1' })
+    expect(within(details).getByText('DHCP addresses').nextElementSibling).toHaveTextContent(expected)
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('clears lease addresses after refresh and hides old observations when stopped or a lookup fails', async () => {
+    const machine = guest('one', 'leased-vm', { devices: { interfaces: [{ type: 'network', source: { network: 'default' }, mac: '00:1a:2b:3c:4d:5e' }] },
+      dhcp: { interfaces: [{ index: 0, mac: '00:1a:2b:3c:4d:5e', addresses: [{ family: 'ipv4', address: '192.168.122.41', prefix: 24 }] }] },
+    })
+    const load = vi.fn().mockResolvedValueOnce(snapshot([machine]))
+      .mockResolvedValueOnce(snapshot([{ ...machine, dhcp: { interfaces: [{ index: 0, mac: '00:1a:2b:3c:4d:5e', addresses: [] }] } }]))
+      .mockResolvedValueOnce(snapshot([{ ...machine, active: false, state: 'shutoff' as Domain['state'] }]))
+      .mockResolvedValueOnce(snapshot([{ ...machine, dhcp: { ...machine.dhcp!, error: 'Lease access denied' } }]))
+    await showMachines(load)
+    expect(screen.getByText('192.168.122.41/24')).toBeInTheDocument()
+    await advance()
+    expect(screen.queryByText('192.168.122.41/24')).not.toBeInTheDocument()
+    expect(screen.getByText('No lease reported')).toBeInTheDocument()
+    await advance()
+    expect(screen.getByText('VM is stopped')).toBeInTheDocument()
+    expect(screen.queryByText('192.168.122.41/24')).not.toBeInTheDocument()
+    await advance()
+    expect(screen.getByText('Lease data unavailable')).toHaveAttribute('title', 'Lease access denied')
+    expect(screen.queryByText('192.168.122.41/24')).not.toBeInTheDocument()
+  })
+
+  it('does not display a lease observation for a different MAC at the same NIC index', async () => {
+    await showMachines(vi.fn().mockResolvedValue(snapshot([guest('one', 'leased-vm', {
+      devices: { interfaces: [{ type: 'network', source: { network: 'default' }, mac: '00:1a:2b:3c:4d:5e' }] },
+      dhcp: { interfaces: [{ index: 0, mac: '00:1a:2b:3c:4d:5a', addresses: [{ family: 'ipv4', address: '10.0.0.8', prefix: 24 }] }] },
+    })])))
+    expect(screen.queryByText('10.0.0.8/24')).not.toBeInTheDocument()
+    const details = screen.getByRole('region', { name: 'Network interface 1' })
+    expect(within(details).getByText('DHCP addresses').nextElementSibling).toHaveTextContent('Not reported')
+  })
 })

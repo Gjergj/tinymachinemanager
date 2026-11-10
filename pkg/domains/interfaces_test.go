@@ -117,5 +117,8 @@ func TestNativeDomainNetworkAttachments(t *testing.T) {
 		if result[0].Devices.Interfaces[0].Source.Network != "default" || result[0].Devices.Interfaces[0].MAC != "52:54:00:00:00:11" || result[0].Devices.Interfaces[1].Source.Bridge != "br-external" {
 			t.Fatalf("attachment info lost: %+v", result[0].Devices.Interfaces)
 		}
+		if active && result[0].DHCP == nil || !active && result[0].DHCP != nil {
+			t.Fatalf("DHCP observation does not match domain activity: %+v", result[0])
+		}
 	}
 }

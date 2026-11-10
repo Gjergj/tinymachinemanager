@@ -3,11 +3,14 @@
 
 export {
     Attachment,
+    DHCPInfo,
+    DHCPInterface,
     DeviceAddress,
     Devices,
     Domain,
     Firmware,
     FirmwareFeature,
+    IPAddress,
     Interface,
     InterfaceSource,
     Loader,

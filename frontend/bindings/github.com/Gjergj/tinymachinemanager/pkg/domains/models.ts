@@ -50,6 +50,75 @@ export class Attachment {
 }
 
 /**
+ * DHCPInfo is a runtime observation from libvirt's DHCP lease address source,
+ * separate from OS/Devices XML. An optional lookup error never hides the guest.
+ */
+export class DHCPInfo {
+    "interfaces": DHCPInterface[];
+    "error"?: string;
+
+    /** Creates a new DHCPInfo instance. */
+    constructor($$source: Partial<DHCPInfo> = {}) {
+        if (!("interfaces" in $$source)) {
+            this["interfaces"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DHCPInfo instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DHCPInfo {
+        const $$createField0_0 = $$createType4;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("interfaces" in $$parsedSource) {
+            $$parsedSource["interfaces"] = $$createField0_0($$parsedSource["interfaces"]);
+        }
+        return new DHCPInfo($$parsedSource as Partial<DHCPInfo>);
+    }
+}
+
+/**
+ * Index identifies the NIC's zero-based position in Devices.Interfaces. Name is
+ * the observed host target or alias; MAC is canonicalized for safe association.
+ */
+export class DHCPInterface {
+    "index": number;
+    "mac": string;
+    "name"?: string;
+    "addresses": IPAddress[];
+    "error"?: string;
+
+    /** Creates a new DHCPInterface instance. */
+    constructor($$source: Partial<DHCPInterface> = {}) {
+        if (!("index" in $$source)) {
+            this["index"] = 0;
+        }
+        if (!("mac" in $$source)) {
+            this["mac"] = "";
+        }
+        if (!("addresses" in $$source)) {
+            this["addresses"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DHCPInterface instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DHCPInterface {
+        const $$createField3_0 = $$createType6;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("addresses" in $$parsedSource) {
+            $$parsedSource["addresses"] = $$createField3_0($$parsedSource["addresses"]);
+        }
+        return new DHCPInterface($$parsedSource as Partial<DHCPInterface>);
+    }
+}
+
+/**
  * DeviceAddress is the device identity for a hostdev interface (usually PCI).
  */
 export class DeviceAddress {
@@ -96,7 +165,7 @@ export class Devices {
      * Creates a new Devices instance from a string or object.
      */
     static createFrom($$source: any = {}): Devices {
-        const $$createField1_0 = $$createType4;
+        const $$createField1_0 = $$createType8;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("interfaces" in $$parsedSource) {
             $$parsedSource["interfaces"] = $$createField1_0($$parsedSource["interfaces"]);
@@ -123,6 +192,7 @@ export class Domain {
     "maxMemoryKiB": number;
     "os": OS;
     "devices": Devices;
+    "dhcp"?: DHCPInfo | null;
 
     /** Creates a new Domain instance. */
     constructor($$source: Partial<Domain> = {}) {
@@ -167,14 +237,18 @@ export class Domain {
      * Creates a new Domain instance from a string or object.
      */
     static createFrom($$source: any = {}): Domain {
-        const $$createField9_0 = $$createType5;
-        const $$createField10_0 = $$createType6;
+        const $$createField9_0 = $$createType9;
+        const $$createField10_0 = $$createType10;
+        const $$createField11_0 = $$createType12;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("os" in $$parsedSource) {
             $$parsedSource["os"] = $$createField9_0($$parsedSource["os"]);
         }
         if ("devices" in $$parsedSource) {
             $$parsedSource["devices"] = $$createField10_0($$parsedSource["devices"]);
+        }
+        if ("dhcp" in $$parsedSource) {
+            $$parsedSource["dhcp"] = $$createField11_0($$parsedSource["dhcp"]);
         }
         return new Domain($$parsedSource as Partial<Domain>);
     }
@@ -196,7 +270,7 @@ export class Firmware {
      * Creates a new Firmware instance from a string or object.
      */
     static createFrom($$source: any = {}): Firmware {
-        const $$createField0_0 = $$createType8;
+        const $$createField0_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("features" in $$parsedSource) {
             $$parsedSource["features"] = $$createField0_0($$parsedSource["features"]);
@@ -227,6 +301,35 @@ export class FirmwareFeature {
     static createFrom($$source: any = {}): FirmwareFeature {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new FirmwareFeature($$parsedSource as Partial<FirmwareFeature>);
+    }
+}
+
+export class IPAddress {
+    "family": string;
+    "address": string;
+    "prefix": number;
+
+    /** Creates a new IPAddress instance. */
+    constructor($$source: Partial<IPAddress> = {}) {
+        if (!("family" in $$source)) {
+            this["family"] = "";
+        }
+        if (!("address" in $$source)) {
+            this["address"] = "";
+        }
+        if (!("prefix" in $$source)) {
+            this["prefix"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new IPAddress instance from a string or object.
+     */
+    static createFrom($$source: any = {}): IPAddress {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new IPAddress($$parsedSource as Partial<IPAddress>);
     }
 }
 
@@ -265,7 +368,7 @@ export class Interface {
     static createFrom($$source: any = {}): Interface {
         const $$createField1_0 = $$createType0;
         const $$createField4_0 = $$createType2;
-        const $$createField11_0 = $$createType10;
+        const $$createField11_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("source" in $$parsedSource) {
             $$parsedSource["source"] = $$createField1_0($$parsedSource["source"]);
@@ -307,7 +410,7 @@ export class InterfaceSource {
      * Creates a new InterfaceSource instance from a string or object.
      */
     static createFrom($$source: any = {}): InterfaceSource {
-        const $$createField9_0 = $$createType12;
+        const $$createField9_0 = $$createType18;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("deviceAddress" in $$parsedSource) {
             $$parsedSource["deviceAddress"] = $$createField9_0($$parsedSource["deviceAddress"]);
@@ -383,10 +486,10 @@ export class OS {
      * Creates a new OS instance from a string or object.
      */
     static createFrom($$source: any = {}): OS {
-        const $$createField0_0 = $$createType13;
-        const $$createField2_0 = $$createType15;
-        const $$createField3_0 = $$createType17;
-        const $$createField4_0 = $$createType19;
+        const $$createField0_0 = $$createType19;
+        const $$createField2_0 = $$createType21;
+        const $$createField3_0 = $$createType23;
+        const $$createField4_0 = $$createType25;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("type" in $$parsedSource) {
             $$parsedSource["type"] = $$createField0_0($$parsedSource["type"]);
@@ -450,20 +553,26 @@ export enum State {
 const $$createType0 = InterfaceSource.createFrom;
 const $$createType1 = networks$0.VLAN.createFrom;
 const $$createType2 = $Create.Nullable($$createType1);
-const $$createType3 = Interface.createFrom;
+const $$createType3 = DHCPInterface.createFrom;
 const $$createType4 = $Create.Array($$createType3);
-const $$createType5 = OS.createFrom;
-const $$createType6 = Devices.createFrom;
-const $$createType7 = FirmwareFeature.createFrom;
+const $$createType5 = IPAddress.createFrom;
+const $$createType6 = $Create.Array($$createType5);
+const $$createType7 = Interface.createFrom;
 const $$createType8 = $Create.Array($$createType7);
-const $$createType9 = Attachment.createFrom;
-const $$createType10 = $Create.Nullable($$createType9);
-const $$createType11 = DeviceAddress.createFrom;
+const $$createType9 = OS.createFrom;
+const $$createType10 = Devices.createFrom;
+const $$createType11 = DHCPInfo.createFrom;
 const $$createType12 = $Create.Nullable($$createType11);
-const $$createType13 = OSType.createFrom;
-const $$createType14 = Firmware.createFrom;
-const $$createType15 = $Create.Nullable($$createType14);
-const $$createType16 = Loader.createFrom;
-const $$createType17 = $Create.Nullable($$createType16);
-const $$createType18 = NVRAM.createFrom;
-const $$createType19 = $Create.Nullable($$createType18);
+const $$createType13 = FirmwareFeature.createFrom;
+const $$createType14 = $Create.Array($$createType13);
+const $$createType15 = Attachment.createFrom;
+const $$createType16 = $Create.Nullable($$createType15);
+const $$createType17 = DeviceAddress.createFrom;
+const $$createType18 = $Create.Nullable($$createType17);
+const $$createType19 = OSType.createFrom;
+const $$createType20 = Firmware.createFrom;
+const $$createType21 = $Create.Nullable($$createType20);
+const $$createType22 = Loader.createFrom;
+const $$createType23 = $Create.Nullable($$createType22);
+const $$createType24 = NVRAM.createFrom;
+const $$createType25 = $Create.Nullable($$createType24);

@@ -84,6 +84,8 @@ svg { flex-shrink: 0; }
 .detail-list dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
 .platform-details { margin-bottom: 24px; }
 .firmware-path { display: block; margin-top: 5px; font-size: 10.5px; color: var(--muted); }
+.dhcp-addresses code { display: block; user-select: all; }
+.dhcp-addresses code + code { margin-top: 4px; }
 .network-details { margin-top: 24px; }
 .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 11px; }
 .badge { display: inline-flex; align-items: center; font-size: 10.5px; line-height: 1.5; color: var(--muted); background: var(--sidebar); border-radius: 5px; padding: 2px 6px; }

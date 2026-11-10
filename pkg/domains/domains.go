@@ -31,17 +31,18 @@ const (
 // Memory fields are in KiB and describe libvirt's allocation/configuration,
 // no the memory consumption inside the guest.
 type Domain struct {
-	Type         string  `json:"type"`
-	UUID         string  `json:"uuid"`
-	Name         string  `json:"name"`
-	State        State   `json:"state"`
-	Active       bool    `json:"active"`
-	Persistent   bool    `json:"persistent"`
-	VCPUs        uint    `json:"vcpus"`
-	MemoryKiB    uint64  `json:"memoryKiB"`
-	MaxMemoryKiB uint64  `json:"maxMemoryKiB"`
-	OS           OS      `json:"os"`
-	Devices      Devices `json:"devices"`
+	Type         string    `json:"type"`
+	UUID         string    `json:"uuid"`
+	Name         string    `json:"name"`
+	State        State     `json:"state"`
+	Active       bool      `json:"active"`
+	Persistent   bool      `json:"persistent"`
+	VCPUs        uint      `json:"vcpus"`
+	MemoryKiB    uint64    `json:"memoryKiB"`
+	MaxMemoryKiB uint64    `json:"maxMemoryKiB"`
+	OS           OS        `json:"os"`
+	Devices      Devices   `json:"devices"`
+	DHCP         *DHCPInfo `json:"dhcp,omitempty"`
 }
 
 // List enumerates active and inactive domains visible through uri using a
@@ -138,11 +139,15 @@ func describe(dom *libvirt.Domain) (Domain, error) {
 	if err != nil {
 		return Domain{}, fmt.Errorf("read XML for domain %q (%s): %w", name, uuid, err)
 	}
+	dhcp := readDHCPAddresses(active, configuration.Devices.Interfaces, func() ([]libvirt.DomainInterface, error) {
+		return dom.ListAllInterfaceAddresses(libvirt.DOMAIN_INTERFACE_ADDRESSES_SRC_LEASE)
+	})
 	return Domain{
 		UUID: uuid, Name: name, State: stateFromLibvirt(info.State),
 		Active: active, Persistent: persistent, VCPUs: info.NrVirtCpu,
 		MemoryKiB: info.Memory, MaxMemoryKiB: info.MaxMem,
 		Type: configuration.Type, OS: configuration.OS, Devices: configuration.Devices,
+		DHCP: dhcp,
 	}, nil
 }
 

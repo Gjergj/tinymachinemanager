@@ -1,6 +1,7 @@
 import type { Attachment, Domain, Interface } from '../../bindings/github.com/Gjergj/tinymachinemanager/pkg/domains/models'
 import { MachineIcon, NetworkIcon } from './Icons'
 import { firmwareLabel, hypervisorLabel, memoryLabel, stateLabel } from './format'
+import { DHCPAddresses } from './DHCPAddresses'
 
 function sourceName(attachment: Attachment) {
   const source = attachment.source
@@ -11,7 +12,7 @@ function sourceName(attachment: Attachment) {
 function vlanLabel(attachment: Attachment) {
   return attachment.vlan?.tags.map(tag => 'VLAN ' + tag.id + (tag.nativeMode ? ' (' + tag.nativeMode + ')' : '')).join(', ')
 }
-function InterfaceDetails({ nic, index, active }: { nic: Interface; index: number; active: boolean }) {
+function InterfaceDetails({ nic, index, active, dhcp }: { nic: Interface; index: number; active: boolean; dhcp: Domain['dhcp'] }) {
   const configuredVLAN = vlanLabel(nic)
   const actualVLAN = nic.actual ? vlanLabel(nic.actual) : undefined
   return <section className="nic-details" aria-label={'Network interface ' + (index + 1)}>
@@ -20,6 +21,7 @@ function InterfaceDetails({ nic, index, active }: { nic: Interface; index: numbe
     <span className="secondary nic-kind">{nic.type || 'Unspecified interface type'}</span>
     <dl className="detail-list">
       <dt>MAC address</dt><dd className="mono">{nic.mac || 'Not reported'}</dd>
+      <dt>DHCP addresses</dt><dd><DHCPAddresses nic={nic} index={index} active={active} dhcp={dhcp} /></dd>
       {nic.source.portGroup && <><dt>Port group</dt><dd>{nic.source.portGroup}</dd></>}
       {configuredVLAN && <><dt>VLAN</dt><dd>{configuredVLAN}{nic.vlan?.trunk ? ' · trunk' : ''}</dd></>}
       {nic.source.mode && <><dt>Source mode</dt><dd>{nic.source.mode}</dd></>}
@@ -51,7 +53,7 @@ export function MachineDetails({ machine }: { machine: Domain }) {
       <dl className="detail-list"><dt>Virtual CPUs</dt><dd>{machine.vcpus}</dd><dt>Memory</dt><dd>{memoryLabel(machine.memoryKiB)}</dd><dt>Maximum memory</dt><dd>{memoryLabel(machine.maxMemoryKiB)}</dd><dt>Definition</dt><dd>{machine.persistent ? 'Persistent' : 'Transient'}</dd></dl>
     </section>
     <section className="network-details"><div className="section-heading"><h3>Network interfaces</h3><span className="badge">{machine.devices.interfaces.length}</span></div>
-      {machine.devices.interfaces.length ? machine.devices.interfaces.map((nic, index) => <InterfaceDetails key={(nic.mac || nic.alias || 'nic') + '-' + index} nic={nic} index={index} active={machine.active} />) : <p className="secondary no-interfaces">No network interfaces defined.</p>}
+      {machine.devices.interfaces.length ? machine.devices.interfaces.map((nic, index) => <InterfaceDetails key={(nic.mac || nic.alias || 'nic') + '-' + index} nic={nic} index={index} active={machine.active} dhcp={machine.dhcp} />) : <p className="secondary no-interfaces">No network interfaces defined.</p>}
     </section>
     <div className="machine-identity"><span className="eyebrow">UUID</span><code>{machine.uuid}</code></div>
   </aside>
