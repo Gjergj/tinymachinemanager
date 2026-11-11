@@ -49,6 +49,27 @@ export class Attachment {
     }
 }
 
+export class BalloonStats {
+    "period": number;
+
+    /** Creates a new BalloonStats instance. */
+    constructor($$source: Partial<BalloonStats> = {}) {
+        if (!("period" in $$source)) {
+            this["period"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new BalloonStats instance from a string or object.
+     */
+    static createFrom($$source: any = {}): BalloonStats {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new BalloonStats($$parsedSource as Partial<BalloonStats>);
+    }
+}
+
 /**
  * DHCPInfo is a runtime observation from libvirt's DHCP lease address source,
  * separate from OS/Devices XML. An optional lookup error never hides the guest.
@@ -151,6 +172,7 @@ export class DeviceAddress {
 export class Devices {
     "emulator"?: string;
     "interfaces": Interface[];
+    "memballoon"?: MemBalloon | null;
 
     /** Creates a new Devices instance. */
     constructor($$source: Partial<Devices> = {}) {
@@ -166,9 +188,13 @@ export class Devices {
      */
     static createFrom($$source: any = {}): Devices {
         const $$createField1_0 = $$createType8;
+        const $$createField2_0 = $$createType10;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("interfaces" in $$parsedSource) {
             $$parsedSource["interfaces"] = $$createField1_0($$parsedSource["interfaces"]);
+        }
+        if ("memballoon" in $$parsedSource) {
+            $$parsedSource["memballoon"] = $$createField2_0($$parsedSource["memballoon"]);
         }
         return new Devices($$parsedSource as Partial<Devices>);
     }
@@ -237,9 +263,9 @@ export class Domain {
      * Creates a new Domain instance from a string or object.
      */
     static createFrom($$source: any = {}): Domain {
-        const $$createField9_0 = $$createType9;
-        const $$createField10_0 = $$createType10;
-        const $$createField11_0 = $$createType12;
+        const $$createField9_0 = $$createType11;
+        const $$createField10_0 = $$createType12;
+        const $$createField11_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("os" in $$parsedSource) {
             $$parsedSource["os"] = $$createField9_0($$parsedSource["os"]);
@@ -270,7 +296,7 @@ export class Firmware {
      * Creates a new Firmware instance from a string or object.
      */
     static createFrom($$source: any = {}): Firmware {
-        const $$createField0_0 = $$createType14;
+        const $$createField0_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("features" in $$parsedSource) {
             $$parsedSource["features"] = $$createField0_0($$parsedSource["features"]);
@@ -368,7 +394,7 @@ export class Interface {
     static createFrom($$source: any = {}): Interface {
         const $$createField1_0 = $$createType0;
         const $$createField4_0 = $$createType2;
-        const $$createField11_0 = $$createType16;
+        const $$createField11_0 = $$createType18;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("source" in $$parsedSource) {
             $$parsedSource["source"] = $$createField1_0($$parsedSource["source"]);
@@ -410,7 +436,7 @@ export class InterfaceSource {
      * Creates a new InterfaceSource instance from a string or object.
      */
     static createFrom($$source: any = {}): InterfaceSource {
-        const $$createField9_0 = $$createType18;
+        const $$createField9_0 = $$createType20;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("deviceAddress" in $$parsedSource) {
             $$parsedSource["deviceAddress"] = $$createField9_0($$parsedSource["deviceAddress"]);
@@ -438,6 +464,36 @@ export class Loader {
     static createFrom($$source: any = {}): Loader {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new Loader($$parsedSource as Partial<Loader>);
+    }
+}
+
+/**
+ * MemBalloon preserves the configured balloon model and optional statistics
+ * collection interval. Reading it does not enable or change guest reporting.
+ */
+export class MemBalloon {
+    "model": string;
+    "stats"?: BalloonStats | null;
+
+    /** Creates a new MemBalloon instance. */
+    constructor($$source: Partial<MemBalloon> = {}) {
+        if (!("model" in $$source)) {
+            this["model"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new MemBalloon instance from a string or object.
+     */
+    static createFrom($$source: any = {}): MemBalloon {
+        const $$createField1_0 = $$createType22;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("stats" in $$parsedSource) {
+            $$parsedSource["stats"] = $$createField1_0($$parsedSource["stats"]);
+        }
+        return new MemBalloon($$parsedSource as Partial<MemBalloon>);
     }
 }
 
@@ -486,10 +542,10 @@ export class OS {
      * Creates a new OS instance from a string or object.
      */
     static createFrom($$source: any = {}): OS {
-        const $$createField0_0 = $$createType19;
-        const $$createField2_0 = $$createType21;
-        const $$createField3_0 = $$createType23;
-        const $$createField4_0 = $$createType25;
+        const $$createField0_0 = $$createType23;
+        const $$createField2_0 = $$createType25;
+        const $$createField3_0 = $$createType27;
+        const $$createField4_0 = $$createType29;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("type" in $$parsedSource) {
             $$parsedSource["type"] = $$createField0_0($$parsedSource["type"]);
@@ -559,20 +615,24 @@ const $$createType5 = IPAddress.createFrom;
 const $$createType6 = $Create.Array($$createType5);
 const $$createType7 = Interface.createFrom;
 const $$createType8 = $Create.Array($$createType7);
-const $$createType9 = OS.createFrom;
-const $$createType10 = Devices.createFrom;
-const $$createType11 = DHCPInfo.createFrom;
-const $$createType12 = $Create.Nullable($$createType11);
-const $$createType13 = FirmwareFeature.createFrom;
-const $$createType14 = $Create.Array($$createType13);
-const $$createType15 = Attachment.createFrom;
-const $$createType16 = $Create.Nullable($$createType15);
-const $$createType17 = DeviceAddress.createFrom;
+const $$createType9 = MemBalloon.createFrom;
+const $$createType10 = $Create.Nullable($$createType9);
+const $$createType11 = OS.createFrom;
+const $$createType12 = Devices.createFrom;
+const $$createType13 = DHCPInfo.createFrom;
+const $$createType14 = $Create.Nullable($$createType13);
+const $$createType15 = FirmwareFeature.createFrom;
+const $$createType16 = $Create.Array($$createType15);
+const $$createType17 = Attachment.createFrom;
 const $$createType18 = $Create.Nullable($$createType17);
-const $$createType19 = OSType.createFrom;
-const $$createType20 = Firmware.createFrom;
-const $$createType21 = $Create.Nullable($$createType20);
-const $$createType22 = Loader.createFrom;
-const $$createType23 = $Create.Nullable($$createType22);
-const $$createType24 = NVRAM.createFrom;
+const $$createType19 = DeviceAddress.createFrom;
+const $$createType20 = $Create.Nullable($$createType19);
+const $$createType21 = BalloonStats.createFrom;
+const $$createType22 = $Create.Nullable($$createType21);
+const $$createType23 = OSType.createFrom;
+const $$createType24 = Firmware.createFrom;
 const $$createType25 = $Create.Nullable($$createType24);
+const $$createType26 = Loader.createFrom;
+const $$createType27 = $Create.Nullable($$createType26);
+const $$createType28 = NVRAM.createFrom;
+const $$createType29 = $Create.Nullable($$createType28);

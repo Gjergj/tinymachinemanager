@@ -83,3 +83,14 @@ func TestNativeDomainPlatformForStoppedAndRunningGuests(t *testing.T) {
 		}
 	}
 }
+
+func TestParseMemoryBalloonStatisticsConfiguration(t *testing.T) {
+	guest, err := parseDomainXML(`<domain><devices><memballoon model="virtio"><stats period="5"/></memballoon></devices></domain>`)
+	if err != nil || guest.Devices.MemBalloon == nil || guest.Devices.MemBalloon.Model != "virtio" || guest.Devices.MemBalloon.Stats == nil || guest.Devices.MemBalloon.Stats.Period != 5 {
+		t.Fatalf("balloon statistics configuration lost: %+v err=%v", guest.Devices, err)
+	}
+	guest, err = parseDomainXML(`<domain><devices><memballoon model="future"/></devices></domain>`)
+	if err != nil || guest.Devices.MemBalloon == nil || guest.Devices.MemBalloon.Model != "future" || guest.Devices.MemBalloon.Stats != nil {
+		t.Fatalf("unspecified balloon statistics were invented: %+v err=%v", guest.Devices, err)
+	}
+}

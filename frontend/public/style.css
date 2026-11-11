@@ -83,6 +83,13 @@ svg { flex-shrink: 0; }
 .detail-list dt { color: var(--muted); }
 .detail-list dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
 .platform-details { margin-bottom: 24px; }
+.usage-details { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.usage-help { font-size: 10.5px; margin-top: 9px; }
+.memory-reporting-action { margin-top: 13px; }
+.secondary-button { border: 1px solid var(--line); background: var(--accent-soft); color: var(--text); padding: 7px 10px; border-radius: 6px; font-size: 11px; }
+.secondary-button:hover:not(:disabled) { border-color: var(--muted); }
+.secondary-button:disabled { opacity: .6; }
+.usage-error { font-size: 11px; color: var(--error); margin-top: 11px; overflow-wrap: anywhere; }
 .firmware-path { display: block; margin-top: 5px; font-size: 10.5px; color: var(--muted); }
 .dhcp-addresses code { display: block; user-select: all; }
 .dhcp-addresses code + code { margin-top: 4px; }

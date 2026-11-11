@@ -17,6 +17,9 @@ import * as hostnet$0 from "./pkg/hostnet/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as networks$0 from "./pkg/networks/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as usage$0 from "./pkg/usage/models.js";
 
 /**
  * MachineInventory carries guest assignments and capacity from the same host.
@@ -24,6 +27,7 @@ import * as networks$0 from "./pkg/networks/models.js";
 export class MachineInventory {
     "machines": domains$0.Domain[];
     "host": hostinfo$0.Resources;
+    "usage": usage$0.GuestUsage[];
 
     /** Creates a new MachineInventory instance. */
     constructor($$source: Partial<MachineInventory> = {}) {
@@ -32,6 +36,9 @@ export class MachineInventory {
         }
         if (!("host" in $$source)) {
             this["host"] = (new hostinfo$0.Resources());
+        }
+        if (!("usage" in $$source)) {
+            this["usage"] = [];
         }
 
         Object.assign(this, $$source);
@@ -43,12 +50,16 @@ export class MachineInventory {
     static createFrom($$source: any = {}): MachineInventory {
         const $$createField0_0 = $$createType1;
         const $$createField1_0 = $$createType2;
+        const $$createField2_0 = $$createType4;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("machines" in $$parsedSource) {
             $$parsedSource["machines"] = $$createField0_0($$parsedSource["machines"]);
         }
         if ("host" in $$parsedSource) {
             $$parsedSource["host"] = $$createField1_0($$parsedSource["host"]);
+        }
+        if ("usage" in $$parsedSource) {
+            $$parsedSource["usage"] = $$createField2_0($$parsedSource["usage"]);
         }
         return new MachineInventory($$parsedSource as Partial<MachineInventory>);
     }
@@ -86,10 +97,10 @@ export class NetworkingInventory {
      * Creates a new NetworkingInventory instance from a string or object.
      */
     static createFrom($$source: any = {}): NetworkingInventory {
-        const $$createField0_0 = $$createType4;
-        const $$createField1_0 = $$createType6;
+        const $$createField0_0 = $$createType6;
+        const $$createField1_0 = $$createType8;
         const $$createField2_0 = $$createType1;
-        const $$createField3_0 = $$createType8;
+        const $$createField3_0 = $$createType10;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("networks" in $$parsedSource) {
             $$parsedSource["networks"] = $$createField0_0($$parsedSource["networks"]);
@@ -140,9 +151,11 @@ export class NetworkingIssue {
 const $$createType0 = domains$0.Domain.createFrom;
 const $$createType1 = $Create.Array($$createType0);
 const $$createType2 = hostinfo$0.Resources.createFrom;
-const $$createType3 = networks$0.Network.createFrom;
+const $$createType3 = usage$0.GuestUsage.createFrom;
 const $$createType4 = $Create.Array($$createType3);
-const $$createType5 = hostnet$0.Interface.createFrom;
+const $$createType5 = networks$0.Network.createFrom;
 const $$createType6 = $Create.Array($$createType5);
-const $$createType7 = NetworkingIssue.createFrom;
+const $$createType7 = hostnet$0.Interface.createFrom;
 const $$createType8 = $Create.Array($$createType7);
+const $$createType9 = NetworkingIssue.createFrom;
+const $$createType10 = $Create.Array($$createType9);

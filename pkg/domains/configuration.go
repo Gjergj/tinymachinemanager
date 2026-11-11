@@ -53,6 +53,18 @@ type NVRAM struct {
 type Devices struct {
 	Emulator   string      `json:"emulator,omitempty"`
 	Interfaces []Interface `json:"interfaces"`
+	MemBalloon *MemBalloon `json:"memballoon,omitempty"`
+}
+
+// MemBalloon preserves the configured balloon model and optional statistics
+// collection interval. Reading it does not enable or change guest reporting.
+type MemBalloon struct {
+	Model string        `json:"model" xml:"model,attr"`
+	Stats *BalloonStats `json:"stats,omitempty" xml:"stats"`
+}
+
+type BalloonStats struct {
+	Period uint `json:"period" xml:"period,attr"`
 }
 
 // parseDomainXML reads the configuration projection in one pass. Runtime state
@@ -65,6 +77,7 @@ func parseDomainXML(data string) (Domain, error) {
 		Devices struct {
 			Emulator   string         `xml:"emulator"`
 			Interfaces []interfaceXML `xml:"interface"`
+			MemBalloon *MemBalloon    `xml:"memballoon"`
 		} `xml:"devices"`
 	}
 	if err := xml.Unmarshal([]byte(data), &raw); err != nil {
@@ -81,6 +94,6 @@ func parseDomainXML(data string) (Domain, error) {
 		raw.OS.FirmwareInfo.Features = append([]FirmwareFeature{}, raw.OS.FirmwareInfo.Features...)
 	}
 	return Domain{Type: raw.Type, OS: raw.OS, Devices: Devices{
-		Emulator: strings.TrimSpace(raw.Devices.Emulator), Interfaces: interfacesFromXML(raw.Devices.Interfaces),
+		Emulator: strings.TrimSpace(raw.Devices.Emulator), Interfaces: interfacesFromXML(raw.Devices.Interfaces), MemBalloon: raw.Devices.MemBalloon,
 	}}, nil
 }

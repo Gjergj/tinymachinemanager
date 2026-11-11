@@ -5,13 +5,13 @@ import { loadMachines } from './machines/api'
 import { loadNetworking } from './networking/api'
 import { snapshot } from './networking/testFixtures'
 
-vi.mock('./machines/api', () => ({ loadMachines: vi.fn() }))
+vi.mock('./machines/api', () => ({ loadMachines: vi.fn(), enableMemoryReporting: vi.fn() }))
 vi.mock('./networking/api', () => ({ loadNetworking: vi.fn() }))
 beforeEach(() => vi.useFakeTimers())
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.clearAllMocks() })
 
 it('navigates between Machines and Networking, polling only the mounted page', async () => {
-  vi.mocked(loadMachines).mockResolvedValue({ machines: [], host: { memoryKiB: 25165824, logicalCPUs: 12 } })
+  vi.mocked(loadMachines).mockResolvedValue({ machines: [], host: { memoryKiB: 25165824, logicalCPUs: 12 }, usage: [] })
   vi.mocked(loadNetworking).mockResolvedValue(snapshot())
   render(<App />)
   await act(async () => {})

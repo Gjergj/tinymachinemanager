@@ -8,6 +8,8 @@ import { MachineDetails } from './MachineDetails'
 import { ResourceSummary } from './ResourceSummary'
 import { memoryLabel, stateLabel } from './format'
 import { useMachines, type LoadMachines } from './useMachines'
+import type { EnableMemoryReporting } from './api'
+import { useMemoryReporting } from './useMemoryReporting'
 
 type Filter = 'all' | 'active' | 'stopped'
 const filters: { value: Filter; label: string }[] = [
@@ -24,8 +26,9 @@ function MachineTable({ machines, selectedUUID, onSelect }: { machines: Domain[]
     </tr>)}</tbody>
   </table></div>
 }
-export function MachinesView({ loadMachines, onNavigate }: { loadMachines: LoadMachines; onNavigate?: (page: Page) => void }) {
-  const { machines, host, loading, error, updatedAt } = useMachines(loadMachines)
+export function MachinesView({ loadMachines, onNavigate, enableMemoryReporting }: { loadMachines: LoadMachines; onNavigate?: (page: Page) => void; enableMemoryReporting?: EnableMemoryReporting }) {
+  const { machines, host, usage, loading, error, updatedAt, refresh } = useMachines(loadMachines)
+  const reporting = useMemoryReporting(enableMemoryReporting, refresh)
   const [filter, setFilter] = useState<Filter>('all')
   const [selectedUUID, setSelectedUUID] = useState<string | null>(null)
   const visible = machines.filter(machine => filter === 'all' || (filter === 'active' ? machine.active : !machine.active))
@@ -53,7 +56,7 @@ export function MachinesView({ loadMachines, onNavigate }: { loadMachines: LoadM
               {visible.length ? <MachineTable machines={visible} selectedUUID={selected?.uuid} onSelect={setSelectedUUID} /> :
                 <div className="inventory-empty" role="status"><span className="empty-icon"><MachineIcon /></span><h2>{machines.length ? 'No ' + (item.value === 'active' ? 'active' : 'stopped') + ' machines' : 'No virtual machines yet'}</h2><p>{machines.length ? 'Choose another state to see your other guests.' : 'This libvirt connection has no virtual machines to display.'}</p></div>}
               {host && <ResourceSummary machines={machines} shown={visible.length} host={host} />}
-            </section>{selected && <MachineDetails machine={selected} />}</div>}
+            </section>{selected && <MachineDetails machine={selected} usage={usage.find(item => item.uuid === selected.uuid)} usageStale={stale} onEnableMemoryReporting={reporting.enable} reportingState={reporting.states[selected.uuid]} />}</div>}
         </Tabs.Panel>)}
       </Tabs.Root>
   </AppShell>

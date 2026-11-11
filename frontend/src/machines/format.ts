@@ -10,6 +10,9 @@ export function stateLabel(state: Domain['state']) {
 }
 export function memoryLabel(kib: number) {
   if (!kib) return 'Not reported'
+  return memoryQuantityLabel(kib)
+}
+export function memoryQuantityLabel(kib: number) {
   const gib = kib / 1024 / 1024
   const number = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 })
   return gib >= 1 ? number.format(gib) + ' GiB' : number.format(kib / 1024) + ' MiB'

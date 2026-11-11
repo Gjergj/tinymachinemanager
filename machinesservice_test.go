@@ -45,6 +45,26 @@ func TestMachineInventoryPreservesConnectionError(t *testing.T) {
 	}
 }
 
+func TestMachineInventoryIncludesIndependentUsageObservations(t *testing.T) {
+	service := &MachinesService{uri: "test:///default"}
+	inventory, err := service.GetInventory()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(inventory.Usage) != len(inventory.Machines) || len(inventory.Usage) != 1 || inventory.Usage[0].UUID != inventory.Machines[0].UUID || inventory.Usage[0].CPU.State != "collecting" {
+		t.Fatalf("usage not included with inventory: %+v", inventory)
+	}
+}
+
+func TestEnableMemoryReportingPreservesNativeConnectionError(t *testing.T) {
+	service := &MachinesService{uri: "test://" + filepath.Join(t.TempDir(), "missing.xml")}
+	err := service.EnableMemoryReporting("00000000-0000-0000-0000-000000000001")
+	var nativeError libvirt.Error
+	if err == nil || !errors.As(err, &nativeError) {
+		t.Fatalf("lost configuration error: %v", err)
+	}
+}
+
 func TestMachinesServicePreservesConnectionError(t *testing.T) {
 	service := &MachinesService{uri: "test://" + filepath.Join(t.TempDir(), "missing.xml")}
 	guests, err := service.ListMachines()

@@ -3,6 +3,7 @@
 
 export {
     Attachment,
+    BalloonStats,
     DHCPInfo,
     DHCPInterface,
     DeviceAddress,
@@ -14,6 +15,7 @@ export {
     Interface,
     InterfaceSource,
     Loader,
+    MemBalloon,
     NVRAM,
     OS,
     OSType,

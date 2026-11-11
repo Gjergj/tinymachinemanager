@@ -19,7 +19,7 @@ const inventory = [
 ]
 
 function snapshot(machines: Domain[], host = { memoryKiB: 25165824, logicalCPUs: 12 }): MachineInventory {
-  return { machines, host }
+  return { machines, host, usage: [] }
 }
 
 async function showMachines(loadMachines: () => Promise<MachineInventory>) {
@@ -306,5 +306,61 @@ describe('Machines view', () => {
     expect(screen.queryByText('10.0.0.8/24')).not.toBeInTheDocument()
     const details = screen.getByRole('region', { name: 'Network interface 1' })
     expect(within(details).getByText('DHCP addresses').nextElementSibling).toHaveTextContent('Not reported')
+  })
+
+  it('refreshes after explicit memory enablement even when an older poll is pending', async () => {
+    const machine = guest('one', 'reporting-vm', { devices: { interfaces: [], memballoon: { model: 'virtio' } } })
+    const configured = { ...machine, devices: { interfaces: [], memballoon: { model: 'virtio', stats: { period: 5 } } } }
+    let finishPoll!: (value: MachineInventory) => void
+    const olderPoll = new Promise<MachineInventory>(resolve => { finishPoll = resolve })
+    const load = vi.fn().mockResolvedValueOnce(snapshot([machine])).mockReturnValueOnce(olderPoll).mockResolvedValueOnce({
+      ...snapshot([configured]), usage: [{ uuid: 'one', cpu: { state: 'ok', percent: 20 }, memory: { state: 'waiting' } }],
+    })
+    const enable = vi.fn().mockResolvedValue(undefined)
+    render(<MachinesView loadMachines={load} enableMemoryReporting={enable} />)
+    await act(async () => {})
+    await advance()
+    fireEvent.click(screen.getByRole('button', { name: 'Enable memory reporting' }))
+    await act(async () => {})
+    expect(enable).toHaveBeenCalledWith('one')
+    expect(load).toHaveBeenCalledTimes(2)
+    expect(screen.getByRole('button', { name: 'Enabling…' })).toBeDisabled()
+    await act(async () => finishPoll(snapshot([machine])))
+    expect(load).toHaveBeenCalledTimes(3)
+    expect(screen.queryByRole('button', { name: 'Enable memory reporting' })).not.toBeInTheDocument()
+    expect(screen.getByText('20%')).toBeInTheDocument()
+    expect(screen.getByText('Waiting…')).toBeInTheDocument()
+  })
+
+  it('suppresses live usage when refreshing the overall inventory fails', async () => {
+    const measured = { ...snapshot([inventory[0]]), usage: [{ uuid: 'one', cpu: { state: 'ok', percent: 40 }, memory: { state: 'ok', usedKiB: 1048576, totalKiB: 4194304 } }] }
+    await showMachines(vi.fn().mockResolvedValueOnce(measured).mockRejectedValueOnce(new Error('Inventory unavailable')))
+    expect(screen.getByText('40%')).toBeInTheDocument()
+    await advance()
+    const details = screen.getByRole('region', { name: 'Runtime usage' })
+    expect(within(details).queryByText('40%')).not.toBeInTheDocument()
+    expect(within(details).queryByText('1 GiB / 4 GiB')).not.toBeInTheDocument()
+    expect(within(details).getAllByText('Stale')).toHaveLength(2)
+  })
+
+  it('keeps enable requests and errors attached to their VM across selection changes', async () => {
+    const machines = [guest('one', 'vm-one', { devices: { interfaces: [], memballoon: { model: 'virtio' } } }),
+      guest('two', 'vm-two', { devices: { interfaces: [], memballoon: { model: 'virtio' } } })]
+    let reject!: (reason: Error) => void
+    const enable = vi.fn(() => new Promise<void>((_resolve, fail) => { reject = fail }))
+    render(<MachinesView loadMachines={vi.fn().mockResolvedValue(snapshot(machines))} enableMemoryReporting={enable} />)
+    await act(async () => {})
+    fireEvent.click(screen.getByRole('button', { name: 'Enable memory reporting' }))
+    await act(async () => {})
+    fireEvent.click(screen.getByRole('button', { name: 'vm-two' }))
+    fireEvent.click(screen.getByRole('button', { name: 'vm-one' }))
+    expect(screen.getByRole('button', { name: 'Enabling…' })).toBeDisabled()
+    expect(enable).toHaveBeenCalledTimes(1)
+    await act(async () => reject(new Error('VM one configuration denied')))
+    expect(screen.getByRole('alert')).toHaveTextContent('VM one configuration denied')
+    fireEvent.click(screen.getByRole('button', { name: 'vm-two' }))
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'vm-one' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('VM one configuration denied')
   })
 })
