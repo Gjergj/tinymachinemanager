@@ -6,6 +6,7 @@ import { UsageDetails } from './UsageDetails'
 import type { GuestUsage } from '../../bindings/github.com/Gjergj/tinymachinemanager/pkg/usage/models'
 import type { EnableMemoryReporting } from './api'
 import type { MemoryReportingState } from './useMemoryReporting'
+import { SerialConsoleAction } from '../console/SerialConsoleAction'
 
 function sourceName(attachment: Attachment) {
   const source = attachment.source
@@ -45,6 +46,7 @@ function InterfaceDetails({ nic, index, active, dhcp }: { nic: Interface; index:
 export function MachineDetails({ machine, usage, usageStale, onEnableMemoryReporting, reportingState }: { machine: Domain; usage?: GuestUsage; usageStale?: boolean; onEnableMemoryReporting?: EnableMemoryReporting; reportingState?: MemoryReportingState }) {
   return <aside className="machine-details" aria-label="Selected machine">
     <div className="selected-heading"><span className="machine-mark"><MachineIcon /></span><div><h2>{machine.name}</h2><span className="machine-state" data-state={machine.state}>{stateLabel(machine.state)}</span></div></div>
+    <SerialConsoleAction key={'serial-' + machine.uuid} machine={machine} />
     <UsageDetails key={machine.uuid} machine={machine} usage={usage} stale={usageStale} onEnableMemoryReporting={onEnableMemoryReporting} reportingState={reportingState} />
     <section className="platform-details" aria-label="Platform"><h3 className="eyebrow">Platform</h3>
       <dl className="detail-list">

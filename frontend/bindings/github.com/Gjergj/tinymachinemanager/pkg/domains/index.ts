@@ -4,6 +4,8 @@
 export {
     Attachment,
     BalloonStats,
+    CharacterDevice,
+    CharacterTarget,
     DHCPInfo,
     DHCPInterface,
     DeviceAddress,

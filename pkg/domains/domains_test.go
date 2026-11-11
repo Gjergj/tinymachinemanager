@@ -111,7 +111,7 @@ func TestListIncludesAllDomainsAndCopiesMetadata(t *testing.T) {
 	for i := range want {
 		want[i].Type = "test"
 		want[i].OS = OS{Type: OSType{Value: "hvm", Arch: "i686", Machine: "pc"}}
-		want[i].Devices = Devices{Emulator: "/usr/bin/test-hv", Interfaces: []Interface{}}
+		want[i].Devices = Devices{Emulator: "/usr/bin/test-hv", Interfaces: []Interface{}, Serials: []CharacterDevice{}, Consoles: []CharacterDevice{}}
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("domains:\n got %+v\nwant %+v", got, want)

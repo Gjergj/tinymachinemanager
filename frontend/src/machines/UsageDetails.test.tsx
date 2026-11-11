@@ -5,7 +5,7 @@ import { guest } from '../networking/testFixtures'
 import { UsageDetails } from './UsageDetails'
 
 afterEach(cleanup)
-const machine = guest('one', [], { devices: { interfaces: [], memballoon: { model: 'virtio' } } })
+const machine = guest('one', [], { devices: { serials: [], consoles: [], interfaces: [], memballoon: { model: 'virtio' } } })
 const measured: GuestUsage = { uuid: 'one', cpu: { state: 'ok', percent: 50 }, memory: { state: 'ok', usedKiB: 1048576, totalKiB: 4194304 } }
 
 it('shows normalized CPU and guest RAM separately from allocation', () => {
@@ -61,10 +61,10 @@ it('surfaces configuration errors and limits the action to unconfigured supporte
   fireEvent.click(screen.getByRole('button', { name: 'Enable memory reporting' }))
   await act(async () => {})
   expect(screen.getByRole('alert')).toHaveTextContent('Not authorized')
-  const configured = { ...machine, devices: { interfaces: [], memballoon: { model: 'virtio', stats: { period: 5 } } } }
+  const configured = { ...machine, devices: { serials: [], consoles: [], interfaces: [], memballoon: { model: 'virtio', stats: { period: 5 } } } }
   rerender(<UsageDetails machine={configured} usage={{ ...measured, memory: { state: 'waiting' } }} onEnableMemoryReporting={enable} />)
   expect(screen.queryByRole('button', { name: 'Enable memory reporting' })).not.toBeInTheDocument()
-  rerender(<UsageDetails machine={{ ...machine, devices: { interfaces: [] } }} onEnableMemoryReporting={enable} />)
+  rerender(<UsageDetails machine={{ ...machine, devices: { serials: [], consoles: [], interfaces: [] } }} onEnableMemoryReporting={enable} />)
   expect(screen.queryByRole('button', { name: 'Enable memory reporting' })).not.toBeInTheDocument()
 })
 

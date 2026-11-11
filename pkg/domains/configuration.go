@@ -51,9 +51,11 @@ type NVRAM struct {
 // Devices groups the supported <devices> entries; it is not an exhaustive XML
 // model. Interfaces remain in device order and serialize as [] when absent.
 type Devices struct {
-	Emulator   string      `json:"emulator,omitempty"`
-	Interfaces []Interface `json:"interfaces"`
-	MemBalloon *MemBalloon `json:"memballoon,omitempty"`
+	Emulator   string            `json:"emulator,omitempty"`
+	Interfaces []Interface       `json:"interfaces"`
+	MemBalloon *MemBalloon       `json:"memballoon,omitempty"`
+	Serials    []CharacterDevice `json:"serials"`
+	Consoles   []CharacterDevice `json:"consoles"`
 }
 
 // MemBalloon preserves the configured balloon model and optional statistics
@@ -70,14 +72,22 @@ type BalloonStats struct {
 // parseDomainXML reads the configuration projection in one pass. Runtime state
 // and normalized resource quantities are populated separately from native APIs.
 func parseDomainXML(data string) (Domain, error) {
+	return ParseConfigurationXML(data)
+}
+
+// ParseConfigurationXML projects non-secret device/OS configuration. Runtime
+// state and identity must be read separately; this does not open a connection.
+func ParseConfigurationXML(data string) (Domain, error) {
 	var raw struct {
 		XMLName xml.Name `xml:"domain"`
 		Type    string   `xml:"type,attr"`
 		OS      OS       `xml:"os"`
 		Devices struct {
-			Emulator   string         `xml:"emulator"`
-			Interfaces []interfaceXML `xml:"interface"`
-			MemBalloon *MemBalloon    `xml:"memballoon"`
+			Emulator   string            `xml:"emulator"`
+			Interfaces []interfaceXML    `xml:"interface"`
+			MemBalloon *MemBalloon       `xml:"memballoon"`
+			Serials    []CharacterDevice `xml:"serial"`
+			Consoles   []CharacterDevice `xml:"console"`
 		} `xml:"devices"`
 	}
 	if err := xml.Unmarshal([]byte(data), &raw); err != nil {
@@ -95,5 +105,7 @@ func parseDomainXML(data string) (Domain, error) {
 	}
 	return Domain{Type: raw.Type, OS: raw.OS, Devices: Devices{
 		Emulator: strings.TrimSpace(raw.Devices.Emulator), Interfaces: interfacesFromXML(raw.Devices.Interfaces), MemBalloon: raw.Devices.MemBalloon,
+		Serials:  append([]CharacterDevice{}, raw.Devices.Serials...),
+		Consoles: append([]CharacterDevice{}, raw.Devices.Consoles...),
 	}}, nil
 }

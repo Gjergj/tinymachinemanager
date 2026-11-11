@@ -5,9 +5,11 @@ import (
 	"embed"
 
 	"log"
+	"os"
 	"time"
 
 	"github.com/Gjergj/tinymachinemanager/pkg/kvmcheck"
+	"github.com/Gjergj/tinymachinemanager/pkg/serialconsole"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
@@ -20,6 +22,10 @@ import (
 var assets embed.FS
 
 func main() {
+	// Libvirt requires event registration before ANY connection is created.
+	if err := serialconsole.RegisterEventLoop(); err != nil {
+		log.Fatal(err)
+	}
 	checkCtx, cancelCheck := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancelCheck()
 	go func() {
@@ -46,11 +52,13 @@ func main() {
 	// 'Bind' is a list of Go struct instances. The frontend has access to the methods of these instances.
 	// 'Mac' options tailor the application when running an macOS.
 	app := application.New(application.Options{
+		Logger:      consoleLogger(os.Stderr),
 		Name:        "tinymachinemanager",
 		Description: "Manage local Linux virtual machines with libvirt",
 		Services: []application.Service{
 			application.NewService(&MachinesService{}),
 			application.NewService(&NetworkingService{}),
+			application.NewService(&ConsoleService{}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

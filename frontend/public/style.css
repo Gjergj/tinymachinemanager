@@ -223,3 +223,24 @@ svg { flex-shrink: 0; }
   .app-brand { font-size: 11px; }
   .workspace-footer { padding: 12px 14px; }
 }
+/* Serial console windows share the application palette and Base UI controls. */
+.serial-console-action { padding: 0 0 1rem; }
+.serial-console-action p { font-size: .8rem; margin: .5rem 0 0; }
+.console-window { height: 100vh; display: flex; flex-direction: column; padding: 1rem; gap: .7rem; box-sizing: border-box; background: var(--page); color: var(--text); }
+.console-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.console-heading h1 { font-size: 1.25rem; margin: .25rem 0 0; }
+.console-toolbar { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.console-toolbar button, .serial-console-action button { background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: .4rem; padding: .5rem .75rem; cursor: pointer; font: inherit; font-size: .85rem; }
+.console-toolbar button:hover, .serial-console-action button:hover { background: var(--accent-soft); }
+.console-toolbar button:disabled, .serial-console-action button:disabled { opacity: .5; cursor: default; }
+.console-toolbar button:focus-visible, .serial-console-action button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.console-toolbar-spacer { flex: 1; }
+.console-notice { color: var(--muted); font-size: .85rem; margin: 0; }
+.console-notice[role=alert] { color: var(--error); }
+.console-terminal { flex: 1; min-height: 0; min-width: 0; overflow: hidden; position: relative; border: 1px solid var(--line); border-radius: .35rem; padding: .5rem; outline-offset: -2px; }
+.console-terminal:focus-visible { outline: 1px solid var(--focus); }
+.console-footer { color: var(--muted); font-size: .75rem; line-height: 1.5; }
+.console-select-popup { background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: .4rem; padding: .25rem; z-index: 10; }
+.console-select-item { padding: .5rem .75rem; font-size: .85rem; border-radius: .25rem; cursor: pointer; }
+.console-select-item[data-highlighted] { background: var(--accent-soft); }
+.console-select-item[data-disabled] { opacity: .5; }

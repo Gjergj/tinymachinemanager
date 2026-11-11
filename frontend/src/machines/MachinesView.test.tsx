@@ -5,13 +5,13 @@ import type { MachineInventory } from '../../bindings/github.com/Gjergj/tinymach
 import { MachinesView } from './MachinesView'
 
 function guest(uuid: string, name: string, extra: Partial<Domain> = {}): Domain {
-  return { uuid, name, type: '', os: { type: {} }, devices: { interfaces: [] }, state: 'running' as Domain['state'], active: true, persistent: true,
+  return { uuid, name, type: '', os: { type: {} }, devices: { serials: [], consoles: [], interfaces: [] }, state: 'running' as Domain['state'], active: true, persistent: true,
     vcpus: 2, memoryKiB: 4194304, maxMemoryKiB: 8388608, ...extra }
 }
 
 const inventory = [
   guest('one', 'atlas-web'),
-  guest('two', 'atlas-db', { state: 'paused' as Domain['state'], devices: { interfaces: [
+  guest('two', 'atlas-db', { state: 'paused' as Domain['state'], devices: { serials: [], consoles: [], interfaces: [
     { type: 'network', source: { network: 'lab', portGroup: 'services' }, model: 'virtio', mac: '52:54:00:00:00:02',
       vlan: { trunk: false, tags: [{ id: 20 }] }, actual: { type: 'bridge', source: { bridge: 'virbr10' } } },
   ] } }),
@@ -202,10 +202,10 @@ describe('Machines view', () => {
     const load = vi.fn().mockResolvedValueOnce(snapshot([guest('one', 'platform-vm', {
       type: 'kvm', os: { type: { value: 'hvm', arch: 'x86_64', machine: 'pc-q35-10.2' }, firmware: 'efi',
         loader: { type: 'pflash', path: '/usr/share/OVMF/OVMF_CODE_4M.ms.fd', secure: 'yes' } },
-      devices: { emulator: '/usr/bin/qemu-system-x86_64', interfaces: [] },
+      devices: { serials: [], consoles: [], emulator: '/usr/bin/qemu-system-x86_64', interfaces: [] },
     })])).mockResolvedValueOnce(snapshot([guest('one', 'platform-vm', {
       type: 'qemu', os: { type: { arch: 'aarch64' }, firmware: 'bios' },
-      devices: { emulator: '/usr/bin/qemu-system-aarch64', interfaces: [] },
+      devices: { serials: [], consoles: [], emulator: '/usr/bin/qemu-system-aarch64', interfaces: [] },
     })]))
     await showMachines(load)
     let platform = screen.getByRole('region', { name: 'Platform' })
@@ -245,7 +245,7 @@ describe('Machines view', () => {
 
   it('shows IPv4 and IPv6 DHCP addresses under their matching NICs', async () => {
     await showMachines(vi.fn().mockResolvedValue(snapshot([guest('one', 'leased-vm', {
-      devices: { interfaces: [
+      devices: { serials: [], consoles: [], interfaces: [
         { type: 'network', source: { network: 'default' }, mac: '00:1A:2B:3C:4D:5E' },
         { type: 'network', source: { network: 'lab' }, mac: '00:1a:2b:3c:4d:5a' },
       ] }, dhcp: { interfaces: [
@@ -271,14 +271,14 @@ describe('Machines view', () => {
     { nic: { type: 'bridge', source: { bridge: 'external' }, mac: '00:1a:2b:3c:4d:5e' }, expected: 'Not available' },
     { nic: { type: 'network', source: { network: 'default' } }, expected: 'Not available' },
   ])('keeps missing and unavailable DHCP data distinct ($expected)', async ({ nic, dhcp, expected }) => {
-    await showMachines(vi.fn().mockResolvedValue(snapshot([guest('one', 'leased-vm', { devices: { interfaces: [nic] }, dhcp })])))
+    await showMachines(vi.fn().mockResolvedValue(snapshot([guest('one', 'leased-vm', { devices: { serials: [], consoles: [], interfaces: [nic] }, dhcp })])))
     const details = screen.getByRole('region', { name: 'Network interface 1' })
     expect(within(details).getByText('DHCP addresses').nextElementSibling).toHaveTextContent(expected)
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('clears lease addresses after refresh and hides old observations when stopped or a lookup fails', async () => {
-    const machine = guest('one', 'leased-vm', { devices: { interfaces: [{ type: 'network', source: { network: 'default' }, mac: '00:1a:2b:3c:4d:5e' }] },
+    const machine = guest('one', 'leased-vm', { devices: { serials: [], consoles: [], interfaces: [{ type: 'network', source: { network: 'default' }, mac: '00:1a:2b:3c:4d:5e' }] },
       dhcp: { interfaces: [{ index: 0, mac: '00:1a:2b:3c:4d:5e', addresses: [{ family: 'ipv4', address: '192.168.122.41', prefix: 24 }] }] },
     })
     const load = vi.fn().mockResolvedValueOnce(snapshot([machine]))
@@ -300,7 +300,7 @@ describe('Machines view', () => {
 
   it('does not display a lease observation for a different MAC at the same NIC index', async () => {
     await showMachines(vi.fn().mockResolvedValue(snapshot([guest('one', 'leased-vm', {
-      devices: { interfaces: [{ type: 'network', source: { network: 'default' }, mac: '00:1a:2b:3c:4d:5e' }] },
+      devices: { serials: [], consoles: [], interfaces: [{ type: 'network', source: { network: 'default' }, mac: '00:1a:2b:3c:4d:5e' }] },
       dhcp: { interfaces: [{ index: 0, mac: '00:1a:2b:3c:4d:5a', addresses: [{ family: 'ipv4', address: '10.0.0.8', prefix: 24 }] }] },
     })])))
     expect(screen.queryByText('10.0.0.8/24')).not.toBeInTheDocument()
@@ -309,8 +309,8 @@ describe('Machines view', () => {
   })
 
   it('refreshes after explicit memory enablement even when an older poll is pending', async () => {
-    const machine = guest('one', 'reporting-vm', { devices: { interfaces: [], memballoon: { model: 'virtio' } } })
-    const configured = { ...machine, devices: { interfaces: [], memballoon: { model: 'virtio', stats: { period: 5 } } } }
+    const machine = guest('one', 'reporting-vm', { devices: { serials: [], consoles: [], interfaces: [], memballoon: { model: 'virtio' } } })
+    const configured = { ...machine, devices: { serials: [], consoles: [], interfaces: [], memballoon: { model: 'virtio', stats: { period: 5 } } } }
     let finishPoll!: (value: MachineInventory) => void
     const olderPoll = new Promise<MachineInventory>(resolve => { finishPoll = resolve })
     const load = vi.fn().mockResolvedValueOnce(snapshot([machine])).mockReturnValueOnce(olderPoll).mockResolvedValueOnce({
@@ -344,8 +344,8 @@ describe('Machines view', () => {
   })
 
   it('keeps enable requests and errors attached to their VM across selection changes', async () => {
-    const machines = [guest('one', 'vm-one', { devices: { interfaces: [], memballoon: { model: 'virtio' } } }),
-      guest('two', 'vm-two', { devices: { interfaces: [], memballoon: { model: 'virtio' } } })]
+    const machines = [guest('one', 'vm-one', { devices: { serials: [], consoles: [], interfaces: [], memballoon: { model: 'virtio' } } }),
+      guest('two', 'vm-two', { devices: { serials: [], consoles: [], interfaces: [], memballoon: { model: 'virtio' } } })]
     let reject!: (reason: Error) => void
     const enable = vi.fn(() => new Promise<void>((_resolve, fail) => { reject = fail }))
     render(<MachinesView loadMachines={vi.fn().mockResolvedValue(snapshot(machines))} enableMemoryReporting={enable} />)
