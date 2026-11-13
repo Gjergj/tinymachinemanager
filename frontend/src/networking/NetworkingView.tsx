@@ -21,7 +21,7 @@ function EmptyState({ title, message }: { title: string; message: string }) {
 function PickerGroup({ title, items, unavailable, selectedKey, onSelect }: {
   title: string; items: ExplorerItem[]; unavailable: boolean; selectedKey?: string; onSelect: (key: string) => void
 }) {
-  return <section className="network-picker-group"><h2 className="eyebrow">{title}<span className="tab-count">{unavailable ? '—' : items.length}</span></h2>
+  return <section className="network-picker-group"><h2 className="eyebrow">{title}</h2>
     {items.map(item => <Button className="network-picker-item" key={item.key} aria-pressed={selectedKey === item.key} onClick={() => onSelect(item.key)}>
       {item.kind === 'network' ? <NetworkIcon /> : <InterfaceIcon />}<span>
         <strong>{item.kind === 'network' ? item.network.name : item.link.name}</strong>{' '}
